@@ -1,0 +1,87 @@
+#!/bin/bash
+
+set -o nounset
+set -o errexit
+
+NGINX_VERSION=1.13.2
+
+DIR=$(pwd)
+BUILDDIR=$DIR/build
+NGINX_DIR=nginx
+
+setup_local_directories () {
+    if [ ! -d $BUILDDIR ]; then
+        mkdir $BUILDDIR > /dev/null 2>&1
+        mkdir $BUILDDIR/$NGINX_DIR > /dev/null 2>&1
+    fi
+
+    if [ ! -d "vendor" ]; then
+        mkdir vendor > /dev/null 2>&1
+    fi
+}
+
+clean () {
+    rm -rf build vendor
+}
+
+clone_echo_module () {
+    pushd vendor > /dev/null 2>&1
+    git clone "https://github.com/openresty/echo-nginx-module" > /dev/null 2>&1
+    popd
+}
+
+install_nginx () {
+    if [ ! -d "vendor/nginx-$NGINX_VERSION" ]; then
+        pushd vendor > /dev/null 2>&1
+        curl -s -L -O "http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz"
+        tar xzf "nginx-$NGINX_VERSION.tar.gz"
+        pushd "nginx-$NGINX_VERSION" > /dev/null 2>&1
+	CFLAGS="-g -O0 -Wall -Werror" ./configure         \
+            --with-debug                                  \
+            --prefix=$(pwd)/../../build/nginx             \
+            --conf-path=conf/nginx.conf                   \
+            --error-log-path=logs/error.log               \
+            --http-log-path=logs/access.log               \
+	    --add-module=../echo-nginx-module             \
+            --add-dynamic-module=../..
+        make
+	make modules
+        make install
+        popd > /dev/null 2>&1
+        popd > /dev/null 2>&1
+        ln -sf $(pwd)/nginx.conf $(pwd)/build/nginx/conf/nginx.conf
+    else
+        printf "NGINX $NGINX_VERSION is already installed\n"
+    fi
+}
+
+compile () {
+    pushd "vendor" > /dev/null 2>&1
+    pushd "nginx-$NGINX_VERSION" > /dev/null 2>&1
+    CFLAGS="-g -O0 -Wall -Werror" ./configure        \
+        --with-debug                                 \
+        --prefix=$(pwd)/../../build/nginx            \
+        --conf-path=conf/nginx.conf                  \
+        --error-log-path=logs/error.log              \
+        --http-log-path=logs/access.log              \
+	--add-module=../echo-nginx-module            \
+        --add-dynamic-module=../..
+    make modules
+    make install
+    popd
+    popd
+}
+
+if [[ "$#" -eq 1 ]]; then
+    if [[ "$1" == "clean" ]]; then
+        clean
+    elif [[ "$1" == "compile" ]]; then
+	compile
+    else
+        echo "The options are clean or compile"
+    fi
+else
+    setup_local_directories
+    clone_echo_module
+    install_nginx
+fi
