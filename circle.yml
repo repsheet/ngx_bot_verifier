@@ -1,0 +1,8 @@
+dependencies:
+  pre:
+    - sudo apt-get update; sudo apt-get install build-essential zlib1g-dev pcre-dev
+    - cpan Test::Nginx
+    - script/bootstrap
+test:
+  override:
+    - make test
