@@ -10,6 +10,39 @@ typedef struct {
 } ngx_http_bot_verifier_module_loc_conf_t;
 
 static ngx_int_t
+ngx_http_bot_verifier_module_verify_bot(ngx_http_request_t *r)
+{
+  struct sockaddr_in sa;
+  sa.sin_family = AF_INET;
+  inet_pton(AF_INET, (char *)r->connection->addr_text.data, &(sa.sin_addr));
+  char hostname[NI_MAXHOST];
+
+  int error = getnameinfo((struct sockaddr *) &sa, sizeof(sa), hostname, sizeof(hostname), NULL, 0, 0);
+  if (error != 0) {
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "getnameinfo() error: %s", gai_strerror(error));
+    return NGX_ERROR;
+  }
+
+  struct addrinfo *result;
+  error = getaddrinfo(hostname, NULL, NULL, &result);
+  if (error != 0) {
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "getaddrinfo() error: %s", gai_strerror(error));
+    return NGX_ERROR;
+  }
+
+  struct sockaddr_in *forward = (struct sockaddr_in*)result->ai_addr;
+  char *forward_result = inet_ntoa(forward->sin_addr);
+
+  if (strcmp(hostname, forward_result) == 0) {
+    freeaddrinfo(result);
+    return NGX_OK;
+  } else {
+    freeaddrinfo(result);
+    return NGX_DECLINED;
+  }
+}
+
+static ngx_int_t
 ngx_http_bot_verifier_module_identifies_as_known_bot(ngx_http_request_t *r)
 {
   ngx_regex_t *re;
@@ -42,7 +75,13 @@ ngx_http_bot_verifier_module_identifies_as_known_bot(ngx_http_request_t *r)
 
   if (n >= 0) {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Google bot identified for %V", &user_agent);
-    return NGX_OK;
+    ngx_int_t ret = ngx_http_bot_verifier_module_verify_bot(r);
+    if (ret == NGX_OK) {
+      ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Verification successful");
+    } else if (ret == NGX_DECLINED) {
+      ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Verification failed");
+      return NGX_HTTP_FORBIDDEN;
+    }
   }
 
   ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "User Agent %V not identified", &user_agent);
@@ -65,6 +104,8 @@ ngx_http_bot_verifier_module_handler(ngx_http_request_t *r)
   ngx_int_t ret = ngx_http_bot_verifier_module_identifies_as_known_bot(r);
   if (ret == NGX_OK) {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Bot identity detected");
+  } else if (ret == NGX_HTTP_FORBIDDEN) {
+    return NGX_HTTP_FORBIDDEN;
   } else {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Bot does not identify");
   }
