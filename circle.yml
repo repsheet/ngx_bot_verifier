@@ -1,7 +1,7 @@
 dependencies:
   pre:
     - sudo apt-get update; sudo apt-get install build-essential zlib1g-dev libpcre3-dev
-    - PERL_MM_USE_DEFAULT=1 cpan LWP::UserAgen Test::Nginx Test::Nginx::Socket
+    - PERL_MM_USE_DEFAULT=1 cpan -fi LWP::UserAgent Test::Nginx Test::Nginx::Socket
     - script/bootstrap
 test:
   override:
