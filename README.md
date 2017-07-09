@@ -21,3 +21,43 @@ load_module modules/ngx_http_bot_verifier_module.so;
 ```
 
 This will ensure the module is loaded and available for use.
+
+## Configuration Directives
+
+The following configuration directives are available:
+
+`bot_verifier <on|off>` - Enables or disables the module  
+
+## Local Setup
+
+This module contains a full self-contained development environment. This is done to ensure work on the module does not interfere with any other NGINX installations. To setup the environment run the `script/bootstrap` command. This will create the following directories:
+
+```
+vendor - The NGINX installation will live here  
+build - The NGINX install will live here  
+```
+
+The `nginx.conf` file in the root of this repository will be symlinked to `build/nginx/conf/nginx.conf` to make configuration changes easier. You can start NGINX using the following command:
+
+```
+build/nginx/sbin/nginx
+```
+
+Log files are available at `build/nginx/logs`. You can stop the server by running
+
+```
+build/nginx/sbin/nginx -s stop
+```
+
+If you are making changes to the module, you can recompile them by running `make compile`. Remember to restart the NGINX after this completes successfully.
+
+## Running the test suite
+
+This repository comes with a test suite that uses the `Test::Nginx` library. To run the test you will need to install the following libraries:
+
+```
+cpan Test::Nginx Test::Nginx::Socket
+```
+
+Once the libraries are installed just run `make` and the suite will run. If you are submitting a change to this module please make sure to run the test suite before you do. Any changes that break the test suite will not be accepted.
+
