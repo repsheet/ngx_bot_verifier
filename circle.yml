@@ -1,6 +1,6 @@
 dependencies:
   pre:
-    - sudo apt-get update; sudo apt-get install build-essential zlib1g-dev pcre-dev
+    - sudo apt-get update; sudo apt-get install build-essential zlib1g-dev libpcre3-dev
     - cpan Test::Nginx
     - script/bootstrap
 test:
