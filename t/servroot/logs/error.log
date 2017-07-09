@@ -1,0 +1,136 @@
+2017/07/09 08:12:19 [debug] 54639#0: bind() 0.0.0.0:1984 #6 
+2017/07/09 08:12:19 [notice] 54639#0: using the "kqueue" event method
+2017/07/09 08:12:19 [notice] 54639#0: nginx/1.13.2
+2017/07/09 08:12:19 [notice] 54639#0: OS: Darwin 16.6.0
+2017/07/09 08:12:19 [notice] 54639#0: hw.ncpu: 8
+2017/07/09 08:12:19 [notice] 54639#0: net.inet.tcp.sendspace: 131072
+2017/07/09 08:12:19 [notice] 54639#0: kern.ipc.somaxconn: 128
+2017/07/09 08:12:19 [notice] 54639#0: getrlimit(RLIMIT_NOFILE): 7168:9223372036854775807
+2017/07/09 08:12:19 [debug] 54640#0: write: 7, 00007FFF5DC45CC0, 6, 0
+2017/07/09 08:12:19 [debug] 54640#0: posix_memalign: 00007F8D40800000:16384 @16
+2017/07/09 08:12:19 [debug] 54640#0: add cleanup: 00007F8D3F81DB70
+2017/07/09 08:12:19 [debug] 54640#0: malloc: 00007F8D3EC03500:8
+2017/07/09 08:12:19 [debug] 54640#0: malloc: 00007F8D3F005C00:16384
+2017/07/09 08:12:19 [debug] 54640#0: malloc: 00007F8D3F009C00:16384
+2017/07/09 08:12:19 [debug] 54640#0: malloc: 00007F8D3F00DC00:14336
+2017/07/09 08:12:19 [debug] 54640#0: malloc: 00007F8D3F011400:6656
+2017/07/09 08:12:19 [debug] 54640#0: malloc: 00007F8D3F012E00:6656
+2017/07/09 08:12:19 [debug] 54640#0: kevent set event: 6: ft:-1 fl:0005
+2017/07/09 08:12:19 [debug] 54640#0: worker cycle
+2017/07/09 08:12:19 [debug] 54640#0: kevent timer: -1, changes: 1
+2017/07/09 08:12:19 [debug] 54640#0: kevent events: 1
+2017/07/09 08:12:19 [debug] 54640#0: kevent: 6: ft:-1 fl:0005 ff:00000000 d:1 ud:00007F8D3F011400
+2017/07/09 08:12:19 [debug] 54640#0: accept on 0.0.0.0:1984, ready: 1
+2017/07/09 08:12:19 [debug] 54640#0: posix_memalign: 00007F8D3ED009D0:512 @16
+2017/07/09 08:12:19 [debug] 54640#0: *1 accept: 127.0.0.1:52920 fd:7
+2017/07/09 08:12:19 [debug] 54640#0: *1 event timer add: 7: 60000:1499605999264
+2017/07/09 08:12:19 [debug] 54640#0: *1 reusable connection: 1
+2017/07/09 08:12:19 [debug] 54640#0: *1 kevent set event: 7: ft:-1 fl:0025
+2017/07/09 08:12:19 [debug] 54640#0: timer delta: 22
+2017/07/09 08:12:19 [debug] 54640#0: worker cycle
+2017/07/09 08:12:19 [debug] 54640#0: kevent timer: 60000, changes: 1
+2017/07/09 08:12:19 [debug] 54640#0: kevent events: 1
+2017/07/09 08:12:19 [debug] 54640#0: kevent: 7: ft:-1 fl:0025 ff:00000000 d:55 ud:00007F8D3F011468
+2017/07/09 08:12:19 [debug] 54640#0: *1 http wait request handler
+2017/07/09 08:12:19 [debug] 54640#0: *1 malloc: 00007F8D40001800:1024
+2017/07/09 08:12:19 [debug] 54640#0: *1 recv: eof:0, avail:55, err:0
+2017/07/09 08:12:19 [debug] 54640#0: *1 recv: fd:7 55 of 1024
+2017/07/09 08:12:19 [debug] 54640#0: *1 reusable connection: 0
+2017/07/09 08:12:19 [debug] 54640#0: *1 posix_memalign: 00007F8D40001C00:4096 @16
+2017/07/09 08:12:19 [debug] 54640#0: *1 http process request line
+2017/07/09 08:12:19 [debug] 54640#0: *1 http request line: "GET /t HTTP/1.1"
+2017/07/09 08:12:19 [debug] 54640#0: *1 http uri: "/t"
+2017/07/09 08:12:19 [debug] 54640#0: *1 http args: ""
+2017/07/09 08:12:19 [debug] 54640#0: *1 http exten: ""
+2017/07/09 08:12:19 [debug] 54640#0: *1 http process request header line
+2017/07/09 08:12:19 [debug] 54640#0: *1 http header: "Host: localhost"
+2017/07/09 08:12:19 [debug] 54640#0: *1 http header: "Connection: close"
+2017/07/09 08:12:19 [debug] 54640#0: *1 http header done
+2017/07/09 08:12:19 [debug] 54640#0: *1 event timer del: 7: 1499605999264
+2017/07/09 08:12:19 [debug] 54640#0: *1 rewrite phase: 0
+2017/07/09 08:12:19 [debug] 54640#0: *1 test location: "/"
+2017/07/09 08:12:19 [debug] 54640#0: *1 test location: "t"
+2017/07/09 08:12:19 [debug] 54640#0: *1 using configuration "=/t"
+2017/07/09 08:12:19 [debug] 54640#0: *1 http cl:-1 max:31457280
+2017/07/09 08:12:19 [debug] 54640#0: *1 rewrite phase: 2
+2017/07/09 08:12:19 [debug] 54640#0: *1 post rewrite phase: 3
+2017/07/09 08:12:19 [debug] 54640#0: *1 generic phase: 4
+2017/07/09 08:12:19 [debug] 54640#0: *1 generic phase: 5
+2017/07/09 08:12:19 [debug] 54640#0: *1 access phase: 6
+2017/07/09 08:12:19 [error] 54640#0: *1 Hello World, client: 127.0.0.1, server: localhost, request: "GET /t HTTP/1.1", host: "localhost"
+2017/07/09 08:12:19 [debug] 54640#0: *1 access phase: 7
+2017/07/09 08:12:19 [debug] 54640#0: *1 access phase: 8
+2017/07/09 08:12:19 [debug] 54640#0: *1 post access phase: 9
+2017/07/09 08:12:19 [debug] 54640#0: *1 posix_memalign: 00007F8D40002C00:4096 @16
+2017/07/09 08:12:19 [debug] 54640#0: *1 HTTP/1.1 200 OK
+Server: nginx/1.13.2
+Date: Sun, 09 Jul 2017 13:12:19 GMT
+Content-Type: text/plain
+Transfer-Encoding: chunked
+Connection: close
+
+2017/07/09 08:12:19 [debug] 54640#0: *1 write new buf t:1 f:0 00007F8D40002E50, pos 00007F8D40002E50, size: 151 file: 0, size: 0
+2017/07/09 08:12:19 [debug] 54640#0: *1 http write filter: l:0 f:0 s:151
+2017/07/09 08:12:19 [debug] 54640#0: *1 http output filter "/t?"
+2017/07/09 08:12:19 [debug] 54640#0: *1 http copy filter: "/t?"
+2017/07/09 08:12:19 [debug] 54640#0: *1 http postpone filter "/t?" 00007F8D40002F60
+2017/07/09 08:12:19 [debug] 54640#0: *1 http chunk: 4
+2017/07/09 08:12:19 [debug] 54640#0: *1 http chunk: 1
+2017/07/09 08:12:19 [debug] 54640#0: *1 write old buf t:1 f:0 00007F8D40002E50, pos 00007F8D40002E50, size: 151 file: 0, size: 0
+2017/07/09 08:12:19 [debug] 54640#0: *1 write new buf t:1 f:0 00007F8D40003000, pos 00007F8D40003000, size: 3 file: 0, size: 0
+2017/07/09 08:12:19 [debug] 54640#0: *1 write new buf t:0 f:0 00007F8D3F81892D, pos 00007F8D3F81892D, size: 4 file: 0, size: 0
+2017/07/09 08:12:19 [debug] 54640#0: *1 write new buf t:0 f:0 00000001020C29EA, pos 00000001020C29EA, size: 1 file: 0, size: 0
+2017/07/09 08:12:19 [debug] 54640#0: *1 write new buf t:0 f:0 0000000000000000, pos 00000001020ABD09, size: 2 file: 0, size: 0
+2017/07/09 08:12:19 [debug] 54640#0: *1 http write filter: l:0 f:0 s:161
+2017/07/09 08:12:19 [debug] 54640#0: *1 http copy filter: 0 "/t?"
+2017/07/09 08:12:19 [debug] 54640#0: *1 http output filter "/t?"
+2017/07/09 08:12:19 [debug] 54640#0: *1 http copy filter: "/t?"
+2017/07/09 08:12:19 [debug] 54640#0: *1 http postpone filter "/t?" 00007F8D40003108
+2017/07/09 08:12:19 [debug] 54640#0: *1 http chunk: 0
+2017/07/09 08:12:19 [debug] 54640#0: *1 write old buf t:1 f:0 00007F8D40002E50, pos 00007F8D40002E50, size: 151 file: 0, size: 0
+2017/07/09 08:12:19 [debug] 54640#0: *1 write old buf t:1 f:0 00007F8D40003000, pos 00007F8D40003000, size: 3 file: 0, size: 0
+2017/07/09 08:12:19 [debug] 54640#0: *1 write old buf t:0 f:0 00007F8D3F81892D, pos 00007F8D3F81892D, size: 4 file: 0, size: 0
+2017/07/09 08:12:19 [debug] 54640#0: *1 write old buf t:0 f:0 00000001020C29EA, pos 00000001020C29EA, size: 1 file: 0, size: 0
+2017/07/09 08:12:19 [debug] 54640#0: *1 write old buf t:0 f:0 0000000000000000, pos 00000001020ABD09, size: 2 file: 0, size: 0
+2017/07/09 08:12:19 [debug] 54640#0: *1 write new buf t:0 f:0 0000000000000000, pos 00000001020AC44F, size: 5 file: 0, size: 0
+2017/07/09 08:12:19 [debug] 54640#0: *1 http write filter: l:1 f:0 s:166
+2017/07/09 08:12:19 [debug] 54640#0: *1 http write filter limit 0
+2017/07/09 08:12:19 [debug] 54640#0: *1 writev: 166 of 166
+2017/07/09 08:12:19 [debug] 54640#0: *1 http write filter 0000000000000000
+2017/07/09 08:12:19 [debug] 54640#0: *1 http copy filter: 0 "/t?"
+2017/07/09 08:12:19 [debug] 54640#0: *1 http set discard body
+2017/07/09 08:12:19 [debug] 54640#0: *1 http finalize request: 0, "/t?" a:1, c:1
+2017/07/09 08:12:19 [debug] 54640#0: *1 http request count:1 blk:0
+2017/07/09 08:12:19 [debug] 54640#0: *1 http close request
+2017/07/09 08:12:19 [debug] 54640#0: *1 http log handler
+2017/07/09 08:12:19 [debug] 54640#0: *1 free: 00007F8D40001C00, unused: 0
+2017/07/09 08:12:19 [debug] 54640#0: *1 free: 00007F8D40002C00, unused: 2569
+2017/07/09 08:12:19 [debug] 54640#0: *1 close http connection: 7
+2017/07/09 08:12:19 [debug] 54640#0: *1 reusable connection: 0
+2017/07/09 08:12:19 [debug] 54640#0: *1 free: 00007F8D40001800
+2017/07/09 08:12:19 [debug] 54640#0: *1 free: 00007F8D3ED009D0, unused: 152
+2017/07/09 08:12:19 [debug] 54640#0: timer delta: 0
+2017/07/09 08:12:19 [debug] 54640#0: worker cycle
+2017/07/09 08:12:19 [debug] 54640#0: kevent timer: -1, changes: 0
+2017/07/09 08:12:19 [notice] 54640#0: signal 15 (SIGTERM) received from 54626, exiting
+2017/07/09 08:12:19 [notice] 54640#0: signal 3 (SIGQUIT) received from 54626, shutting down
+2017/07/09 08:12:19 [debug] 54640#0: kevent events: -1
+2017/07/09 08:12:19 [info] 54640#0: kevent() failed (4: Interrupted system call)
+2017/07/09 08:12:19 [debug] 54640#0: timer delta: 49
+2017/07/09 08:12:19 [debug] 54640#0: flush files
+2017/07/09 08:12:19 [notice] 54640#0: exit
+2017/07/09 08:12:19 [debug] 54640#0: close listening 0.0.0.0:1984 #6 
+2017/07/09 08:12:19 [debug] 54640#0: run cleanup: 00007F8D3F81DB70
+2017/07/09 08:12:19 [debug] 54640#0: run cleanup: 00007F8D3F819FC0
+2017/07/09 08:12:19 [debug] 54640#0: cleanup resolver
+2017/07/09 08:12:19 [debug] 54640#0: run cleanup: 00007F8D3F80A5B8
+2017/07/09 08:12:19 [debug] 54640#0: free: 00007F8D3F81F800
+2017/07/09 08:12:19 [debug] 54640#0: free: 00007F8D3F814C00
+2017/07/09 08:12:19 [debug] 54640#0: free: 00007F8D3F813A00
+2017/07/09 08:12:19 [debug] 54640#0: free: 00007F8D3F812800
+2017/07/09 08:12:19 [debug] 54640#0: free: 00007F8D3F811600
+2017/07/09 08:12:19 [debug] 54640#0: free: 00007F8D3F801000, unused: 0
+2017/07/09 08:12:19 [debug] 54640#0: free: 00007F8D3F80A000, unused: 1
+2017/07/09 08:12:19 [debug] 54640#0: free: 00007F8D3F815C00, unused: 1
+2017/07/09 08:12:19 [debug] 54640#0: free: 00007F8D3F819C00, unused: 120
+2017/07/09 08:12:19 [debug] 54640#0: free: 00007F8D40800000, unused: 16096

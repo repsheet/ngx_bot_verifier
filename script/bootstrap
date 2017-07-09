@@ -43,9 +43,8 @@ install_nginx () {
             --error-log-path=logs/error.log               \
             --http-log-path=logs/access.log               \
 	    --add-module=../echo-nginx-module             \
-            --add-dynamic-module=../..
+            --add-module=../..
         make
-	make modules
         make install
         popd > /dev/null 2>&1
         popd > /dev/null 2>&1
@@ -65,8 +64,8 @@ compile () {
         --error-log-path=logs/error.log              \
         --http-log-path=logs/access.log              \
 	--add-module=../echo-nginx-module            \
-        --add-dynamic-module=../..
-    make modules
+        --add-module=../..
+    make
     make install
     popd
     popd
