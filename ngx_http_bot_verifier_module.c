@@ -2,11 +2,22 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #include <ngx_http.h>
+#include <hiredis/hiredis.h>
 
 ngx_module_t ngx_http_bot_verifier_module;
 
 typedef struct {
+  ngx_str_t host;
+  ngx_uint_t port;
+  ngx_uint_t connection_timeout;
+  ngx_uint_t read_timeout;
+  ngx_uint_t expiry;
+  redisContext *connection;
+} redis_t;
+
+typedef struct {
   ngx_flag_t enabled;
+  redis_t redis;
 } ngx_http_bot_verifier_module_loc_conf_t;
 
 static ngx_int_t
@@ -221,6 +232,46 @@ ngx_http_bot_verifier_module_commands[] = {
     offsetof(ngx_http_bot_verifier_module_loc_conf_t, enabled),
     NULL
   },
+  {
+    ngx_string("bot_verifier_redis_host"),
+    NGX_HTTP_MAIN_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+    ngx_conf_set_flag_slot,
+    NGX_HTTP_LOC_CONF_OFFSET,
+    offsetof(ngx_http_bot_verifier_module_loc_conf_t, redis.host),
+    NULL
+  },
+  {
+    ngx_string("bot_verifier_redis_port"),
+    NGX_HTTP_MAIN_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+    ngx_conf_set_num_slot,
+    NGX_HTTP_LOC_CONF_OFFSET,
+    offsetof(ngx_http_bot_verifier_module_loc_conf_t, redis.port),
+    NULL
+  },
+  {
+    ngx_string("bot_verifier_redis_connection_timeout"),
+    NGX_HTTP_MAIN_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+    ngx_conf_set_num_slot,
+    NGX_HTTP_LOC_CONF_OFFSET,
+    offsetof(ngx_http_bot_verifier_module_loc_conf_t, redis.connection_timeout),
+    NULL
+  },
+  {
+    ngx_string("bot_verifier_redis_read_timeout"),
+    NGX_HTTP_MAIN_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+    ngx_conf_set_num_slot,
+    NGX_HTTP_LOC_CONF_OFFSET,
+    offsetof(ngx_http_bot_verifier_module_loc_conf_t, redis.read_timeout),
+    NULL
+  },
+  {
+    ngx_string("bot_verifier_redis_expiry"),
+    NGX_HTTP_MAIN_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+    ngx_conf_set_num_slot,
+    NGX_HTTP_LOC_CONF_OFFSET,
+    offsetof(ngx_http_bot_verifier_module_loc_conf_t, redis.expiry),
+    NULL
+  },
   ngx_null_command
 };
 
@@ -235,6 +286,11 @@ ngx_http_bot_verifier_module_create_loc_conf(ngx_conf_t *cf)
   }
 
   conf->enabled = NGX_CONF_UNSET;
+  conf->redis.port = NGX_CONF_UNSET_UINT;
+  conf->redis.connection_timeout = NGX_CONF_UNSET_UINT;
+  conf->redis.read_timeout = NGX_CONF_UNSET_UINT;
+  conf->redis.expiry = NGX_CONF_UNSET_UINT;
+  conf->redis.connection = NULL;
 
   return conf;
 }
@@ -245,7 +301,11 @@ ngx_http_bot_verifier_module_merge_loc_conf(ngx_conf_t *cf, void *parent, void *
   ngx_http_bot_verifier_module_loc_conf_t *prev = (ngx_http_bot_verifier_module_loc_conf_t *) parent;
   ngx_http_bot_verifier_module_loc_conf_t *conf = (ngx_http_bot_verifier_module_loc_conf_t *) child;
 
-  ngx_conf_merge_value(conf->enabled, prev->enabled, 0);
+  ngx_conf_merge_value(conf->enabled,                  prev->enabled,                  0);
+  ngx_conf_merge_value(conf->redis.port,               prev->redis.port,               6379);
+  ngx_conf_merge_value(conf->redis.connection_timeout, prev->redis.connection_timeout, 10);
+  ngx_conf_merge_value(conf->redis.read_timeout,       prev->redis.read_timeout,       10);
+  ngx_conf_merge_value(conf->redis.expiry,             prev->redis.expiry,             86400);
 
   return NGX_CONF_OK;
 }
