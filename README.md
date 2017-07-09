@@ -22,6 +22,22 @@ load_module modules/ngx_http_bot_verifier_module.so;
 
 This will ensure the module is loaded and available for use.
 
+## Verifying Functionality
+
+In order to ensure the module is working properly you will need to issue a query that will trigger failure and success cases. To trigger a failure case issue the following request:
+
+```
+curl -A "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html" localhost:8888
+```
+
+This will issue a query that identifies itself as a Google bot. The reverse and forward lookup routine will fail and you will get a `403` response. To ensure the verification works when a bot is identified issue the following request:
+
+```
+curl -H "X-Forwarded-For: 66.249.66.1" -A "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html" localhost:8888
+```
+
+This will spoof the `X-Forwarded-For` header and pretend to be from a valid google address. The request should succeed and return a normal response.
+
 ## Configuration Directives
 
 The following configuration directives are available:
