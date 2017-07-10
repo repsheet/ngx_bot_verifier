@@ -174,6 +174,61 @@ ngx_http_bot_verifier_module_identifies_as_known_bot(ngx_http_request_t *r)
 }
 
 static ngx_int_t
+check_connection(redisContext *context) {
+  if (context == NULL || context->err) {
+    return NGX_ERROR;
+  }
+
+  redisReply *reply;
+  reply = redisCommand(context, "PING");
+  if (reply) {
+    if (reply->type == REDIS_REPLY_ERROR) {
+      freeReplyObject(reply);
+      return NGX_ERROR;
+    } else {
+      freeReplyObject(reply);
+      return NGX_OK;
+    }
+  } else {
+    return NGX_ERROR;
+  }
+}
+
+static void
+cleanup_connection(ngx_http_bot_verifier_module_loc_conf_t *loc_conf)
+{
+  if (loc_conf->redis.connection != NULL) {
+    redisFree(loc_conf->redis.connection);
+    loc_conf->redis.connection = NULL;
+  }
+}
+
+static ngx_int_t
+reset_connection(ngx_http_bot_verifier_module_loc_conf_t *loc_conf)
+{
+  cleanup_connection(loc_conf);
+  const char *host = (const char *)loc_conf->redis.host.data;
+  int port = loc_conf->redis.port;
+  int connection_timeout = loc_conf->redis.connection_timeout;
+  int read_timeout = loc_conf->redis.read_timeout;
+
+  struct timeval ct = {0, (connection_timeout > 0) ? (connection_timeout * 1000) : 10000};
+  struct timeval rt = {0, (read_timeout > 0) ? (read_timeout * 1000) : 10000};
+
+  redisContext *context = redisConnectWithTimeout(host, port, ct);
+  if (context == NULL || context->err) {
+    if (context) {
+      redisFree(context);
+    }
+    return NGX_ERROR;
+  } else {
+    redisSetTimeout(context, rt);
+    loc_conf->redis.connection = context;
+    return NGX_OK;
+  }
+}
+
+static ngx_int_t
 ngx_http_bot_verifier_module_handler(ngx_http_request_t *r)
 {
   if (r->main->internal) {
@@ -184,6 +239,28 @@ ngx_http_bot_verifier_module_handler(ngx_http_request_t *r)
 
   if (!loc_conf->enabled || loc_conf->enabled == NGX_CONF_UNSET) {
     return NGX_DECLINED;
+  }
+
+  ngx_int_t connection_status = check_connection(loc_conf->redis.connection);
+  if (connection_status == NGX_ERROR) {
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "No cache connection found, creating a new connection");
+
+    if (loc_conf->redis.connection != NULL) {
+      ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Cache connection error: %s", loc_conf->redis.connection->errstr);
+    }
+
+    connection_status = reset_connection(loc_conf);
+
+    if (connection_status == NGX_ERROR) {
+      ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Unable to establish a connection to cache, bypassing");
+
+      if (loc_conf->redis.connection != NULL) {
+        ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Cache connection error: %s", loc_conf->redis.connection->errstr);
+        cleanup_connection(loc_conf);
+      }
+
+      return NGX_DECLINED;
+    }
   }
 
   ngx_int_t ret = ngx_http_bot_verifier_module_identifies_as_known_bot(r);
@@ -235,7 +312,7 @@ ngx_http_bot_verifier_module_commands[] = {
   {
     ngx_string("bot_verifier_redis_host"),
     NGX_HTTP_MAIN_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
-    ngx_conf_set_flag_slot,
+    ngx_conf_set_str_slot,
     NGX_HTTP_LOC_CONF_OFFSET,
     offsetof(ngx_http_bot_verifier_module_loc_conf_t, redis.host),
     NULL
