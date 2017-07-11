@@ -4,6 +4,12 @@
 #include <ngx_http.h>
 #include <hiredis/hiredis.h>
 
+#define SUCCESS 0
+#define NOT_FOUND 1
+#define FAILURE 3
+#define ERROR 2
+
+
 ngx_module_t ngx_http_bot_verifier_module;
 
 typedef struct {
@@ -229,6 +235,36 @@ reset_connection(ngx_http_bot_verifier_module_loc_conf_t *loc_conf)
 }
 
 static ngx_int_t
+lookup_verification_status(redisContext *context, char *address)
+{
+  redisReply *reply;
+
+  reply = redisCommand(context, "GET %s:bvs", address);
+  if (reply) {
+    if (reply->type == REDIS_REPLY_STRING) {
+      if (strncmp("failure", reply->str, strlen("failure")) == 0) {
+        freeReplyObject(reply);
+        return FAILURE;
+      } else if (strncmp("success", reply->str, strlen("success")) == 0) {
+        freeReplyObject(reply);
+        return SUCCESS;
+      } else {
+        freeReplyObject(reply);
+        return ERROR;
+      }
+    } else if (reply->type == REDIS_REPLY_NIL) {
+      freeReplyObject(reply);
+      return NOT_FOUND;
+    } else {
+      freeReplyObject(reply);
+      return ERROR;
+    }
+  } else {
+    return ERROR;
+  }
+}
+
+static ngx_int_t
 ngx_http_bot_verifier_module_handler(ngx_http_request_t *r)
 {
   if (r->main->internal) {
@@ -261,6 +297,41 @@ ngx_http_bot_verifier_module_handler(ngx_http_request_t *r)
 
       return NGX_DECLINED;
     }
+  }
+
+  char *address;
+  address = malloc(sizeof(INET_ADDRSTRLEN));
+  ngx_int_t address_status = ngx_http_bot_verifier_module_determine_address(r, address);
+  if (address_status == NGX_ERROR) {
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Unable to determine connected address, bypassing");
+    return NGX_DECLINED;
+  }
+
+  ngx_int_t verification_status = lookup_verification_status(loc_conf->redis.connection, address);
+  if (verification_status == NGX_ERROR) {
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Unable to lookup verification status, bypassing");
+    return NGX_DECLINED;
+  }
+
+  ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Lookup result %d", verification_status);
+
+  if (verification_status == SUCCESS) {
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Actor has already been verified, bypassing");
+    return NGX_DECLINED;
+  }
+
+  if (verification_status == FAILURE) {
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Actor previously failed verification, blocking request");
+    return NGX_HTTP_FORBIDDEN;
+  }
+
+  if (verification_status == ERROR) {
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "There was an error looking up the actor, failing open");
+    return NGX_DECLINED;
+  }
+
+  if (verification_status == NOT_FOUND) {
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Actor has not been verified, initiating verification process");
   }
 
   ngx_int_t ret = ngx_http_bot_verifier_module_identifies_as_known_bot(r);
