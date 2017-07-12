@@ -265,6 +265,24 @@ lookup_verification_status(redisContext *context, char *address)
 }
 
 static ngx_int_t
+persist_verification_status(redisContext *context, char *address, ngx_int_t status)
+{
+  redisReply *reply = NULL;
+
+  if (status == NGX_OK) {
+    reply = redisCommand(context, "SET %s:bvs %s", address, "success");
+  } else if (status == NGX_DECLINED) {
+    reply = redisCommand(context, "SET %s:bvs %s", address, "failure");
+  }
+
+  if (reply) {
+    freeReplyObject(reply);
+  }
+
+  return NGX_OK;
+}
+
+static ngx_int_t
 ngx_http_bot_verifier_module_handler(ngx_http_request_t *r)
 {
   if (r->main->internal) {
@@ -341,8 +359,10 @@ ngx_http_bot_verifier_module_handler(ngx_http_request_t *r)
     ret = ngx_http_bot_verifier_module_verify_bot(r);
     if (ret == NGX_OK) {
       ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Verification successful");
+      persist_verification_status(loc_conf->redis.connection, address, ret);
     } else if (ret == NGX_DECLINED) {
       ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Verification failed");
+      persist_verification_status(loc_conf->redis.connection, address, ret);
       return NGX_HTTP_FORBIDDEN;
     }
   } else {
