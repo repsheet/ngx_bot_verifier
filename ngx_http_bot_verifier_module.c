@@ -89,10 +89,10 @@ ngx_http_bot_verifier_module_handler(ngx_http_request_t *r)
     ret = ngx_http_bot_verifier_module_verify_bot(r);
     if (ret == NGX_OK) {
       ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Verification successful");
-      persist_verification_status(loc_conf->redis.connection, address, ret);
+      persist_verification_status(loc_conf->redis.connection, address, ret, loc_conf->redis.expiry);
     } else if (ret == NGX_DECLINED) {
       ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Verification failed");
-      persist_verification_status(loc_conf->redis.connection, address, ret);
+      persist_verification_status(loc_conf->redis.connection, address, ret, loc_conf->redis.expiry);
       return NGX_HTTP_FORBIDDEN;
     }
   } else {
@@ -203,7 +203,7 @@ ngx_http_bot_verifier_module_merge_loc_conf(ngx_conf_t *cf, void *parent, void *
   ngx_conf_merge_value(conf->redis.port,               prev->redis.port,               6379);
   ngx_conf_merge_value(conf->redis.connection_timeout, prev->redis.connection_timeout, 10);
   ngx_conf_merge_value(conf->redis.read_timeout,       prev->redis.read_timeout,       10);
-  ngx_conf_merge_value(conf->redis.expiry,             prev->redis.expiry,             86400);
+  ngx_conf_merge_value(conf->redis.expiry,             prev->redis.expiry,             3600);
 
   return NGX_CONF_OK;
 }

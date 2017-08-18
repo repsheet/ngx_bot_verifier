@@ -1,3 +1,10 @@
+#include <nginx.h>
+#include <ngx_config.h>
+#include <ngx_core.h>
+#include <ngx_http.h>
+
+#include "ngx_http_bot_verifier_address_tools.h"
+
 ngx_int_t
 ngx_http_bot_verifier_module_verify_bot(ngx_http_request_t *r)
 {

@@ -5,6 +5,7 @@
 #include <hiredis/hiredis.h>
 
 #include "ngx_http_bot_verifier_module.h"
+#include "ngx_http_bot_verifier_cache.h"
 
 ngx_int_t
 check_connection(redisContext *context) {
@@ -92,14 +93,14 @@ lookup_verification_status(redisContext *context, char *address)
 }
 
 ngx_int_t
-persist_verification_status(redisContext *context, char *address, ngx_int_t status)
+persist_verification_status(redisContext *context, char *address, ngx_int_t status, ngx_int_t expiry)
 {
   redisReply *reply = NULL;
 
   if (status == NGX_OK) {
-    reply = redisCommand(context, "SET %s:bvs %s", address, "success");
+    reply = redisCommand(context, "SETEX %s:bvs %d %s", address, expiry, "success");
   } else if (status == NGX_DECLINED) {
-    reply = redisCommand(context, "SET %s:bvs %s", address, "failure");
+    reply = redisCommand(context, "SETEX %s:bvs %d %s", address, expiry, "failure");
   }
 
   if (reply) {
