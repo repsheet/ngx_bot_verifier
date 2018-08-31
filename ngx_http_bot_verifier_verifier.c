@@ -5,10 +5,44 @@
 
 #include "ngx_http_bot_verifier_address_tools.h"
 
+typedef struct {
+  size_t len;
+  const char *name;
+  const char *valid_domains[];
+} provider_t;
+
+provider_t *make_provider(char *name, char *valid_domains[], size_t len) {
+  provider_t *provider = (provider_t*) malloc(sizeof(provider_t) + sizeof(char*) * len);
+  provider->name = name;
+  provider->len = len;
+
+  int i;
+  for (i = 0; i < provider->len; i++) {
+    provider->valid_domains[i] = valid_domains[i];
+  }
+
+  return provider;
+}
+
 ngx_int_t
 hostname_matches_provider_domain(ngx_http_request_t *r, char *hostname)
 {
-  char *google[2] = {"google.com", "googlebot.com"};
+  // TODO: move this into module init so it's not done every time
+  size_t len;
+
+  char *google_domains[2] = {"google.com", "googlebot.com"};
+  len = sizeof(google_domains) / sizeof(google_domains[0]);
+  provider_t *google = make_provider("Google", google_domains, len);
+
+  char *bing_domains[1] = {"search.msn.com"};
+  len = sizeof(bing_domains) / sizeof(bing_domains[0]);
+  provider_t *bing = make_provider("Bing", bing_domains, len);
+
+  provider_t *providers[] = { google, bing };
+  size_t provider_len = sizeof(providers) / sizeof(providers[0]);
+  // END TODO
+
+
   ngx_regex_t *re;
   ngx_regex_compile_t rc;
   u_char errstr[NGX_MAX_CONF_ERRSTR];
@@ -33,17 +67,19 @@ hostname_matches_provider_domain(ngx_http_request_t *r, char *hostname)
   ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "HOSTNAME: %V", &ngx_hostname);
   n = ngx_regex_exec(re, &ngx_hostname, captures, (1+ rc.captures) * 3);
   ngx_str_t capture;
-  int i, j;
 
+  int i, j, k;
   if (n >= 0) {
     for (i = 0; i < n * 2; i += 2) {
       capture.data = ngx_hostname.data + captures[i];
       capture.len = captures[i + 1] - captures[i];
       ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Capture: %V", &capture);
       for (j = 0; j < 2; j++) {
-	if (ngx_strncmp(capture.data, google[j], strlen(google[j])) == 0) {
-	  ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Found match for %V with %V", &ngx_hostname, &capture);
-	  return NGX_OK;
+	for (k = 0; k < provider_len; k++) {
+	  if (ngx_strncmp(capture.data, providers[k]->valid_domains[j], strlen(providers[k]->valid_domains[j])) == 0) {
+	    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Found match for %V with %V", &ngx_hostname, &capture);
+	    return NGX_OK;
+	  }
 	}
       }
     }

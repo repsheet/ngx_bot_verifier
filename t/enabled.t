@@ -60,7 +60,7 @@ User-Agent: Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.h
 "
 --- error_code: 403
 
-=== TEST 4: User agent provided, identified, valid (200)
+=== TEST 4: google agent provided, identified, valid (200)
 --- config
 location = /t {
   bot_verifier on;
@@ -77,6 +77,27 @@ Host: 127.0.0.1\r
 Connection: close\r
 X-Forwarded-For: 66.249.66.1\r
 User-Agent: Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html\r
+\r
+"
+--- error_code: 200
+
+=== TEST 5: bing agent provided, identified, valid (200)
+--- config
+location = /t {
+  bot_verifier on;
+  bot_verifier_redis_host localhost;
+  bot_verifier_redis_port 6379;
+  bot_verifier_redis_connection_timeout 10;
+  bot_verifier_redis_read_timeout 10;
+  bot_verifier_redis_expiry 3600;
+  echo 'test';
+}
+--- raw_request eval
+"GET /t HTTP/1.1\r
+Host: 127.0.0.1\r
+Connection: close\r
+X-Forwarded-For: 157.55.33.18\r
+User-Agent: Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)\r
 \r
 "
 --- error_code: 200
