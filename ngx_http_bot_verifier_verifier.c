@@ -77,7 +77,11 @@ ngx_http_bot_verifier_module_verify_bot(ngx_http_request_t *r)
 
   ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Lookup hostname %s", &hostname);
   ngx_int_t match_result = hostname_matches_provider_domain(r, (char *)hostname);
-  ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Match result %d", match_result);
+
+  if (match_result == NGX_DECLINED) {
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Match result %d", match_result);
+    return match_result;
+  }
 
   struct addrinfo *result;
   error = getaddrinfo(hostname, NULL, NULL, &result);
@@ -89,7 +93,8 @@ ngx_http_bot_verifier_module_verify_bot(ngx_http_request_t *r)
   struct sockaddr_in *forward = (struct sockaddr_in*)result->ai_addr;
   char *forward_result = inet_ntoa(forward->sin_addr);
 
-  ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Lookup IP %s", forward_result);
+  ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Forward Result %s", forward_result);
+  ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Derived Address %s", dervied_address);
 
   if (strcmp(dervied_address, forward_result) == 0) {
     freeaddrinfo(result);
