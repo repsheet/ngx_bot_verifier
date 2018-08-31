@@ -1,3 +1,4 @@
 build
 vendor
 t/servroot
+dump.rdb
