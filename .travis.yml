@@ -11,6 +11,7 @@ services:
 script:
   - make bootstrap
   - make test
+  - cat t/servroot/logs/error.log
 branches:
   only:
     - master
