@@ -5,7 +5,7 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq build-essential libhiredis-dev libhiredis0.10
   - sudo apt-get install perlbrew
-  - cpanm install Test::Nginx Test::Nginx::Socket
+  - cpanm -S install Test::Nginx Test::Nginx::Socket
 services:
   - redis-server
 script:
