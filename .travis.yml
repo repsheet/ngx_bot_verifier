@@ -1,0 +1,17 @@
+dist: trusty
+sudo: required
+language: c
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq build-essential
+services:
+  - redis-server
+jobs:
+  include:
+    - stage: build
+      script: make bootstrap
+    - stage: test
+      script: make test
+branches:
+  only:
+    - master
