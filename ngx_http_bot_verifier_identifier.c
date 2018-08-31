@@ -7,6 +7,11 @@ ngx_http_bot_verifier_module_identifies_as_known_bot(ngx_http_request_t *r)
   ngx_regex_compile_t rc;
   u_char errstr[NGX_MAX_CONF_ERRSTR];
 
+  if (r->headers_in.user_agent == NULL) {
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "User Agent was not provided");
+    return NGX_DECLINED;
+  }
+
   ngx_str_t user_agent = r->headers_in.user_agent->value;
   if (user_agent.data == NULL) {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "User Agent was not provided");
