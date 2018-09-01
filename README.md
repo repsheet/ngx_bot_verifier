@@ -8,14 +8,20 @@
 * [Description](#description)
 * [Directives](#directives)
   * [bot_verifier](#bot_verifier)
+  * [bot_verifier_redis_host](#bot_verifier_redis_host)
+  * [bot_verifier_redis_port](#bot_verifier_redis_port)
 
 ## Status
 
 This module is alpha quality. It is not production ready.
 
+[Back to TOC](#table-of-contents)
+
 ## Version
 
 This document describes version [0.0.1](https://github.com/abedra/ngx_bot_verifier/tags) released on TODO.
+
+[Back to TOC](#table-of-contents)
 
 ## Synopsis
 
@@ -57,6 +63,36 @@ bot_verifier
 **phase:** *access*
 
 Enables or disables the module. The module will not act unless it is set to *on*.
+
+[Back to TOC](#table-of-contents)
+
+bot_verifier_redis_host
+-----------------------
+
+**syntax:** *bot_verifier_redis_host* &lt;string&gt;
+
+**default:** *localhost*
+
+**context:** *location*
+
+**phase:** *access*
+
+Sets the Redis host. This setting is used to connect to the Redis database used for caching lookup results.
+
+[Back to TOC](#table-of-contents)
+
+bot_verifier_redis_port
+-----------------------
+
+**syntax:** *bot_verifier_redis_host* &lt;string&gt;
+
+**default:** *localhost*
+
+**context:** *location*
+
+**phase:** *access*
+
+Sets the Redis port. This setting is used to connect to the Redis database used for caching lookup results.
 
 [Back to TOC](#table-of-contents)
 
