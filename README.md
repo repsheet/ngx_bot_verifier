@@ -170,6 +170,8 @@ load_module modules/ngx_http_bot_verifier_module.so;
 
 This will ensure the module is loaded and available for use.
 
+[Back to TOC](#table-of-contents)
+
 ## Verifying Functionality
 
 In order to ensure the module is working properly you will need to issue a query that will trigger failure and success cases. To trigger a failure case issue the following request:
