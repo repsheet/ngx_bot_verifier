@@ -10,6 +10,8 @@
   * [bot_verifier](#bot_verifier)
   * [bot_verifier_redis_host](#bot_verifier_redis_host)
   * [bot_verifier_redis_port](#bot_verifier_redis_port)
+  * [bot_verifier_redis_connection_timeout](#bot_verifier_redis_connection_timeout)
+  * [bot_verifier_redis_read_timeout](#bot_verifier_redis_read_timeout)
 
 ## Status
 
@@ -84,9 +86,9 @@ Sets the Redis host. This setting is used to connect to the Redis database used 
 bot_verifier_redis_port
 -----------------------
 
-**syntax:** *bot_verifier_redis_host* &lt;string&gt;
+**syntax:** *bot_verifier_redis_port* &lt;int&gt;
 
-**default:** *localhost*
+**default:** *6379*
 
 **context:** *location*
 
@@ -95,6 +97,37 @@ bot_verifier_redis_port
 Sets the Redis port. This setting is used to connect to the Redis database used for caching lookup results.
 
 [Back to TOC](#table-of-contents)
+
+bot_verifier_redis_connection_timeout
+-------------------------------------
+
+**syntax:** *bot_verifier_redis_connection_timeout* &lt;int&gt;
+
+**default:** *10*
+
+**context:** *location*
+
+**phase:** *access*
+
+Sets the timeout when connecting to Redis. This setting is used to connect to the Redis database used for caching lookup results.
+
+[Back to TOC](#table-of-contents)
+
+bot_verifier_redis_read_timeout
+-------------------------------------
+
+**syntax:** *bot_verifier_redis_read_timeout* &lt;int&gt;
+
+**default:** *5*
+
+**context:** *location*
+
+**phase:** *access*
+
+Sets the timeout when querying Redis. This setting is used to connect to the Redis database used for caching lookup results.
+
+[Back to TOC](#table-of-contents)
+
 
 ## Installation
 
