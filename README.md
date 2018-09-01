@@ -1,5 +1,65 @@
 # NGINX Search Index Bot Verification Module [![Build Status](https://secure.travis-ci.org/abedra/ngx_bot_verifier.png)](http://travis-ci.org/abedra/ngx_bot_verifier?branch=master)
 
+## Table of Contents
+
+* [Status](#status)
+* [Version](#version)
+* [Synopsis](#synopsis)
+* [Description](#description)
+* [Directives](#directives)
+  * [bot_verifier](#bot_verifier)
+
+## Status
+
+This module is alpha quality. It is not production ready.
+
+## Version
+
+This document describes version [0.0.1](https://github.com/abedra/ngx_bot_verifier/tags) released on TODO.
+
+## Synopsis
+
+```nginx
+location / {
+    bot_verifier on;
+    bot_verifier_redis_host localhost;
+    bot_verifier_redis_port 6379;
+    bot_verifier_redis_connection_timeout 10;
+    bot_verifier_redis_read_timeout 10;
+    bot_verifier_redis_expiry 3600;
+}
+```
+
+[Back to TOC](#table-of-contents)
+
+## Description
+
+TODO: Write
+
+[Back to TOC](#table-of-contents)
+
+Directives
+==========
+
+TODO: Write
+
+[Back to TOC](#table-of-contents)
+
+bot_verifier
+------------
+
+**syntax:** *bot_verifier* \[on|off\]
+
+**default:** *off*
+
+**context:** *location*
+
+**phase:** *access*
+
+Enables or disables the module. The module will not act unless it is set to *on*.
+
+[Back to TOC](#table-of-contents)
+
 ## Installation
 
 You can add this module to the static build of NGINX or as a dynamic module. To add as a static module add the following line to the `configure` command when compiling NGINX.
