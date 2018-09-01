@@ -20,7 +20,11 @@ hostname_matches_provider_domain(ngx_http_request_t *r, char *hostname)
   len = sizeof(bing_domains) / sizeof(bing_domains[0]);
   provider_t *bing = make_provider("Bing", bing_domains, len);
 
-  provider_t *providers[] = { google, bing };
+  char *yahoo_domains[1] = {"yahoo.com"};
+  len = sizeof(yahoo_domains) / sizeof(yahoo_domains[0]);
+  provider_t *yahoo = make_provider("Yahoo", yahoo_domains, len);
+
+  provider_t *providers[] = { google, bing, yahoo };
   size_t provider_len = sizeof(providers) / sizeof(providers[0]);
   // END TODO
 

@@ -18,7 +18,7 @@ ngx_http_bot_verifier_module_identifies_as_known_bot(ngx_http_request_t *r)
     return NGX_DECLINED;
   }
 
-  ngx_str_t pattern = ngx_string("google|bing");
+  ngx_str_t pattern = ngx_string("google|bing|yahoo");
   ngx_memzero(&rc, sizeof(ngx_regex_compile_t));
   rc.pattern = pattern;
   rc.pool = r->pool;
