@@ -12,6 +12,7 @@
   * [bot_verifier_redis_port](#bot_verifier_redis_port)
   * [bot_verifier_redis_connection_timeout](#bot_verifier_redis_connection_timeout)
   * [bot_verifier_redis_read_timeout](#bot_verifier_redis_read_timeout)
+  * [bot_verifier_redis_expiry](#bot_verifier_redis_expiry)
 
 ## Status
 
@@ -128,6 +129,20 @@ Sets the timeout when querying Redis. This setting is used to connect to the Red
 
 [Back to TOC](#table-of-contents)
 
+bot_verifier_redis_expiry
+-------------------------
+
+**syntax:** *bot_verifier_redis_expiry* &lt;seconds&gt;
+
+**default:** *3600*
+
+**context:** *location*
+
+**phase:** *access*
+
+Sets the timeout when querying Redis. This setting is used to connect to the Redis database used for caching lookup results.
+
+[Back to TOC](#table-of-contents)
 
 ## Installation
 
