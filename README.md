@@ -13,6 +13,10 @@
   * [bot_verifier_redis_connection_timeout](#bot_verifier_redis_connection_timeout)
   * [bot_verifier_redis_read_timeout](#bot_verifier_redis_read_timeout)
   * [bot_verifier_redis_expiry](#bot_verifier_redis_expiry)
+* [Installation](#installation)
+* [Verifying Functionality](#verifying-functionality)
+* [Developer Setup](#developer-setup)
+* [Running the Test Suite](#running-the-test-suite)
 
 ## Status
 
@@ -205,7 +209,7 @@ build/nginx/sbin/nginx -s stop
 
 If you are making changes to the module, you can recompile them by running `make compile`. Remember to restart the NGINX after this completes successfully.
 
-## Running the test suite
+## Running the Test Suite
 
 This repository comes with a test suite that uses the `Test::Nginx` library. To run the test you will need to install the following libraries:
 
