@@ -186,6 +186,8 @@ curl -H "X-Forwarded-For: 66.249.66.1" -A "Mozilla/5.0 (compatible; Googlebot/2.
 
 This will spoof the `X-Forwarded-For` header and pretend to be from a valid google address. The request should succeed and return a normal response.
 
+[Back to TOC](#table-of-contents)
+
 ## Developer Setup
 
 This module contains a full self-contained development environment. This is done to ensure work on the module does not interfere with any other NGINX installations. To setup the environment run the `script/bootstrap` command. This will create the following directories:
@@ -209,6 +211,8 @@ build/nginx/sbin/nginx -s stop
 
 If you are making changes to the module, you can recompile them by running `make compile`. Remember to restart the NGINX after this completes successfully.
 
+[Back to TOC](#table-of-contents)
+
 ## Running the Test Suite
 
 This repository comes with a test suite that uses the `Test::Nginx` library. To run the test you will need to install the following libraries:
@@ -219,3 +223,4 @@ cpanm -S install Test::Nginx Test::Nginx::Socket
 
 Once the libraries are installed just run `make` and the suite will run. If you are submitting a change to this module please make sure to run the test suite before you do. Any changes that break the test suite will not be accepted.
 
+[Back to TOC](#table-of-contents)
