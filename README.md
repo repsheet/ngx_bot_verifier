@@ -160,7 +160,7 @@ If you wish to add this module as a dynamic module, change the argument to `conf
 
 You will then have to run `make modules` after you run `make` to ensure the module gets compiled and installed. You will also need to add a line to you `nginx.conf` telling it where to find the module. This must be added in the `MAIN CONF` section.
 
-```
+```nginx
 load_module modules/ngx_http_bot_verifier_module.so;
 ```
 
@@ -182,13 +182,7 @@ curl -H "X-Forwarded-For: 66.249.66.1" -A "Mozilla/5.0 (compatible; Googlebot/2.
 
 This will spoof the `X-Forwarded-For` header and pretend to be from a valid google address. The request should succeed and return a normal response.
 
-## Configuration Directives
-
-The following configuration directives are available:
-
-`bot_verifier <on|off>` - Enables or disables the module  
-
-## Local Setup
+## Developer Setup
 
 This module contains a full self-contained development environment. This is done to ensure work on the module does not interfere with any other NGINX installations. To setup the environment run the `script/bootstrap` command. This will create the following directories:
 
@@ -216,7 +210,7 @@ If you are making changes to the module, you can recompile them by running `make
 This repository comes with a test suite that uses the `Test::Nginx` library. To run the test you will need to install the following libraries:
 
 ```
-cpan Test::Nginx Test::Nginx::Socket
+cpanm -S install Test::Nginx Test::Nginx::Socket
 ```
 
 Once the libraries are installed just run `make` and the suite will run. If you are submitting a change to this module please make sure to run the test suite before you do. Any changes that break the test suite will not be accepted.
