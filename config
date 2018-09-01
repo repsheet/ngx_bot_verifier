@@ -7,7 +7,8 @@ if test -n "$ngx_module_link"; then
                      $ngx_addon_dir/ngx_http_bot_verifier_cache.c         \
                      $ngx_addon_dir/ngx_http_bot_verifier_address_tools.c \
                      $ngx_addon_dir/ngx_http_bot_verifier_identifier.c    \
-                     $ngx_addon_dir/ngx_http_bot_verifier_verifier.c"
+                     $ngx_addon_dir/ngx_http_bot_verifier_verifier.c      \
+		     $ngx_addon_dir/ngx_http_bot_verifier_provider.c"
     ngx_module_libs="-lhiredis"
 
     . auto/module
@@ -17,6 +18,7 @@ else
                                     $ngx_addon_dir/ngx_http_bot_verifier_cache.c         \
                                     $ngx_addon_dir/ngx_http_bot_verifier_address_tools.c \
                                     $ngx_addon_dir/ngx_http_bot_verifier_identifier.c    \
-                                    $ngx_addon_dir/ngx_http_bot_verifier_verifier.c"
+                                    $ngx_addon_dir/ngx_http_bot_verifier_verifier.c      \
+				    $ngx_addon_dir/ngx_http_bot_verifier_provider.c"
     CORE_LIBS="$CORE_LIBS -lhiredis"
 fi

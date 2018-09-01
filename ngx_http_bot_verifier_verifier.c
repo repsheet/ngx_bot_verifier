@@ -4,25 +4,7 @@
 #include <ngx_http.h>
 
 #include "ngx_http_bot_verifier_address_tools.h"
-
-typedef struct {
-  size_t len;
-  const char *name;
-  const char *valid_domains[];
-} provider_t;
-
-provider_t *make_provider(char *name, char *valid_domains[], size_t len) {
-  provider_t *provider = (provider_t*) malloc(sizeof(provider_t) + sizeof(char*) * len);
-  provider->name = name;
-  provider->len = len;
-
-  int i;
-  for (i = 0; i < provider->len; i++) {
-    provider->valid_domains[i] = valid_domains[i];
-  }
-
-  return provider;
-}
+#include "ngx_http_bot_verifier_provider.h"
 
 ngx_int_t
 hostname_matches_provider_domain(ngx_http_request_t *r, char *hostname)
