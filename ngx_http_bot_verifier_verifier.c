@@ -51,18 +51,20 @@ hostname_matches_provider_domain(ngx_http_request_t *r, char *hostname)
   ngx_hostname.data = (u_char *)hostname;
   ngx_hostname.len = strlen(hostname);
   ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "HOSTNAME: %V", &ngx_hostname);
-  n = ngx_regex_exec(re, &ngx_hostname, captures, (1+ rc.captures) * 3);
-  ngx_str_t capture;
+  n = ngx_regex_exec(re, &ngx_hostname, captures, (1 + rc.captures) * 3);
 
+  ngx_str_t capture;
   int i, j, k;
   if (n >= 0) {
     for (i = 0; i < n * 2; i += 2) {
       capture.data = ngx_hostname.data + captures[i];
       capture.len = captures[i + 1] - captures[i];
       ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Capture: %V", &capture);
-      for (j = 0; j < 2; j++) {
-	for (k = 0; k < provider_len; k++) {
-	  if (ngx_strncmp(capture.data, providers[k]->valid_domains[j], strlen(providers[k]->valid_domains[j])) == 0) {
+      for (j = 0; j < provider_len; j++) {
+	// TODO: This could be optimized capturing the name of the provider that matched and only iteration through that providers valid domains.
+	for (k = 0; k < providers[j]->len; k++) {
+	  ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Comparing %s against: %s", capture.data, providers[j]->valid_domains[k]);
+	  if (ngx_strncmp(capture.data, providers[j]->valid_domains[k], strlen(providers[j]->valid_domains[k])) == 0) {
 	    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Found match for %V with %V", &ngx_hostname, &capture);
 	    return NGX_OK;
 	  }

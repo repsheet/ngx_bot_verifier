@@ -122,3 +122,24 @@ User-Agent: Mozilla/5.0 (compatible; Yahoo! Slurp; http://help.yahoo.com/help/us
 \r
 "
 --- error_code: 200
+
+=== TEST 7: agent provided, address does not resolve to valid domain (403)
+--- config
+location = /t {
+  bot_verifier on;
+  bot_verifier_redis_host localhost;
+  bot_verifier_redis_port 6379;
+  bot_verifier_redis_connection_timeout 10;
+  bot_verifier_redis_read_timeout 10;
+  bot_verifier_redis_expiry 3600;
+  echo 'test';
+}
+--- raw_request eval
+"GET /t HTTP/1.1\r
+Host: 127.0.0.1\r
+Connection: close\r
+X-Forwarded-For: 120.40.14.1\r
+User-Agent: Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html\r
+\r
+"
+--- error_code: 403
