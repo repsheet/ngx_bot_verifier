@@ -66,6 +66,10 @@ hostname_matches_provider_domain(ngx_http_request_t *r, char *hostname)
 	  ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Comparing %s against: %s", capture.data, providers[j]->valid_domains[k]);
 	  if (ngx_strncmp(capture.data, providers[j]->valid_domains[k], strlen(providers[j]->valid_domains[k])) == 0) {
 	    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Found match for %V with %V", &ngx_hostname, &capture);
+	    // TODO remove this once provider init moves to module init
+	    free(google);
+	    free(yahoo);
+	    free(bing);
 	    return NGX_OK;
 	  }
 	}
@@ -74,6 +78,10 @@ hostname_matches_provider_domain(ngx_http_request_t *r, char *hostname)
   }
 
   ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Result does not match known domain");
+  // TODO remove this once provider init moves to module init
+  free(google);
+  free(yahoo);
+  free(bing);
   return NGX_DECLINED;
 }
 
