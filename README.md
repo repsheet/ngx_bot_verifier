@@ -47,14 +47,14 @@ location / {
 
 ## Description
 
-TODO: Write
+This is an NGINX module designed to validate actors claiming to be search engine indexers. It is right to disable security mechanisms for valid search engine bots to ensure your controls do not interfere with page rankings on any of the search providers. The issue is that the [User Agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent) header cannot be trusted. In order to ensure you are allowing only valid search engine indexers, you must validate according to their published standards. This module performs that validation and caches the results to ensure you do not pay validation penalties on every request.
 
 [Back to TOC](#table-of-contents)
 
 Directives
 ==========
 
-TODO: Write
+The following directives are used only for module configuration.
 
 [Back to TOC](#table-of-contents)
 
