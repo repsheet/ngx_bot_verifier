@@ -3,32 +3,13 @@
 #include <ngx_core.h>
 #include <ngx_http.h>
 
+#include "ngx_http_bot_verifier_module.h"
 #include "ngx_http_bot_verifier_address_tools.h"
 #include "ngx_http_bot_verifier_provider.h"
 
 ngx_int_t
-hostname_matches_provider_domain(ngx_http_request_t *r, char *hostname)
+hostname_matches_provider_domain(ngx_http_request_t *r, char *hostname, ngx_http_bot_verifier_module_loc_conf_t *loc_conf)
 {
-  // TODO: move this into module init so it's not done every time
-  size_t len;
-
-  char *google_domains[2] = {"google.com", "googlebot.com"};
-  len = sizeof(google_domains) / sizeof(google_domains[0]);
-  provider_t *google = make_provider("Google", google_domains, len);
-
-  char *bing_domains[1] = {"search.msn.com"};
-  len = sizeof(bing_domains) / sizeof(bing_domains[0]);
-  provider_t *bing = make_provider("Bing", bing_domains, len);
-
-  char *yahoo_domains[1] = {"yahoo.com"};
-  len = sizeof(yahoo_domains) / sizeof(yahoo_domains[0]);
-  provider_t *yahoo = make_provider("Yahoo", yahoo_domains, len);
-
-  provider_t *providers[] = { google, bing, yahoo };
-  size_t provider_len = sizeof(providers) / sizeof(providers[0]);
-  // END TODO
-
-
   ngx_regex_t *re;
   ngx_regex_compile_t rc;
   u_char errstr[NGX_MAX_CONF_ERRSTR];
@@ -60,16 +41,12 @@ hostname_matches_provider_domain(ngx_http_request_t *r, char *hostname)
       capture.data = ngx_hostname.data + captures[i];
       capture.len = captures[i + 1] - captures[i];
       ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Capture: %V", &capture);
-      for (j = 0; j < provider_len; j++) {
+      for (j = 0; j < loc_conf->provider_len; j++) {
 	// TODO: This could be optimized capturing the name of the provider that matched and only iteration through that providers valid domains.
-	for (k = 0; k < providers[j]->len; k++) {
-	  ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Comparing %s against: %s", capture.data, providers[j]->valid_domains[k]);
-	  if (ngx_strncmp(capture.data, providers[j]->valid_domains[k], strlen(providers[j]->valid_domains[k])) == 0) {
+	for (k = 0; k < loc_conf->providers[j]->len; k++) {
+	  ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Comparing %s against: %s", capture.data, loc_conf->providers[j]->valid_domains[k]);
+	  if (ngx_strncmp(capture.data, loc_conf->providers[j]->valid_domains[k], strlen(loc_conf->providers[j]->valid_domains[k])) == 0) {
 	    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Found match for %V with %V", &ngx_hostname, &capture);
-	    // TODO remove this once provider init moves to module init
-	    free(google);
-	    free(yahoo);
-	    free(bing);
 	    return NGX_OK;
 	  }
 	}
@@ -78,15 +55,11 @@ hostname_matches_provider_domain(ngx_http_request_t *r, char *hostname)
   }
 
   ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Result does not match known domain");
-  // TODO remove this once provider init moves to module init
-  free(google);
-  free(yahoo);
-  free(bing);
   return NGX_DECLINED;
 }
 
 ngx_int_t
-ngx_http_bot_verifier_module_verify_bot(ngx_http_request_t *r)
+ngx_http_bot_verifier_module_verify_bot(ngx_http_request_t *r, ngx_http_bot_verifier_module_loc_conf_t *loc_conf)
 {
   char dervied_address[INET_ADDRSTRLEN];
   ngx_int_t error = ngx_http_bot_verifier_module_determine_address(r, dervied_address);
@@ -108,7 +81,7 @@ ngx_http_bot_verifier_module_verify_bot(ngx_http_request_t *r)
   }
 
   ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Lookup hostname %s", &hostname);
-  ngx_int_t match_result = hostname_matches_provider_domain(r, (char *)hostname);
+  ngx_int_t match_result = hostname_matches_provider_domain(r, (char *)hostname, loc_conf);
 
   if (match_result == NGX_DECLINED) {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Match result %d", match_result);

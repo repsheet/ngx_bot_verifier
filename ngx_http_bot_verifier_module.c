@@ -9,6 +9,7 @@
 #include "ngx_http_bot_verifier_address_tools.h"
 #include "ngx_http_bot_verifier_identifier.h"
 #include "ngx_http_bot_verifier_verifier.h"
+#include "ngx_http_bot_verifier_provider.h"
 
 ngx_module_t ngx_http_bot_verifier_module;
 
@@ -86,7 +87,7 @@ ngx_http_bot_verifier_module_handler(ngx_http_request_t *r)
 
   if (ret == NGX_OK) {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Bot identity detected");
-    ret = ngx_http_bot_verifier_module_verify_bot(r);
+    ret = ngx_http_bot_verifier_module_verify_bot(r, loc_conf);
     if (ret == NGX_OK) {
       ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Verification successful");
       persist_verification_status(loc_conf->redis.connection, address, ret, loc_conf->redis.expiry);
@@ -189,6 +190,27 @@ ngx_http_bot_verifier_module_create_loc_conf(ngx_conf_t *cf)
   conf->redis.read_timeout = NGX_CONF_UNSET_UINT;
   conf->redis.expiry = NGX_CONF_UNSET_UINT;
   conf->redis.connection = NULL;
+
+  size_t len;
+
+  char *google_domains[2] = {"google.com", "googlebot.com"};
+  len = sizeof(google_domains) / sizeof(google_domains[0]);
+  provider_t *google = make_provider("Google", google_domains, len);
+
+  char *bing_domains[1] = {"search.msn.com"};
+  len = sizeof(bing_domains) / sizeof(bing_domains[0]);
+  provider_t *bing = make_provider("Bing", bing_domains, len);
+
+  char *yahoo_domains[1] = {"yahoo.com"};
+  len = sizeof(yahoo_domains) / sizeof(yahoo_domains[0]);
+  provider_t *yahoo = make_provider("Yahoo", yahoo_domains, len);
+
+  conf->provider_len = 3;
+  // TODO: use nginx allocation
+  conf->providers = malloc(sizeof(provider_t**) + conf->provider_len * sizeof(provider_t*));
+  conf->providers[0] = google;
+  conf->providers[1] = yahoo;
+  conf->providers[2] = bing;
 
   return conf;
 }
