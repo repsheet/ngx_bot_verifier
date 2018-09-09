@@ -1,45 +1,47 @@
 #include <ngx_http.h>
 
 ngx_int_t
-remote_address(char *connected_address, char *xff_header, char *address)
+remote_address(u_char *connected_address, u_char *xff_header, ngx_str_t *address)
 {
   if ((connected_address == NULL && xff_header == NULL) || address == NULL) {
     return NGX_DECLINED;
   }
 
   int length;
-  memset(address, '\0', INET_ADDRSTRLEN);
 
   if (xff_header != NULL) {
-    char *p;
+    u_char *p;
 
-    for (p = xff_header; p < (xff_header + strlen(xff_header)); p++) {
+    for (p = xff_header; p < (xff_header + strlen((const char *)xff_header)); p++) {
       if (*p == ' ' || *p == ',') {
         break;
       }
     }
 
     length = p - xff_header;
-    char test_address[length + 1];
+    u_char test_address[length + 1];
     memcpy(test_address, xff_header, length);
     test_address[length] = '\0';
 
     unsigned char buf[sizeof(struct in_addr)];
 
     if (inet_pton(AF_INET, (const char *)test_address, buf) == 1) {
-      memcpy(address, test_address, length);
+      address->data = malloc(sizeof(u_char *) * length + 1);
+      ngx_memcpy(address->data, test_address, length + 1);
+      address->len = length + 1;
       return NGX_OK;
     } else {
       return NGX_ERROR;
     }
   } else {
-    memcpy(address, connected_address, strlen(connected_address));
+    address->data = connected_address;
+    address->len = strlen((const char *)connected_address);
     return NGX_OK;
   }
 }
 
 ngx_int_t
-ngx_http_bot_verifier_module_determine_address(ngx_http_request_t *r, char *address)
+ngx_http_bot_verifier_module_determine_address(ngx_http_request_t *r, ngx_str_t *address)
 {
   ngx_int_t result;
   ngx_table_elt_t *xff = NULL;
@@ -50,11 +52,12 @@ ngx_http_bot_verifier_module_determine_address(ngx_http_request_t *r, char *addr
   }
 
   if (xff == NULL) {
-    memcpy(address, r->connection->addr_text.data, r->connection->addr_text.len);
-    address[r->connection->addr_text.len] = '\0';
+    address->data = r->connection->addr_text.data;
+    address->len = r->connection->addr_text.len;
+
     return NGX_OK;
   } else {
-    result = remote_address((char *)r->connection->addr_text.data, (char*)xff->value.data, address);
+    result = remote_address(r->connection->addr_text.data, xff->value.data, address);
     if (result == NGX_OK) {
       return NGX_OK;
     } else if (result == NGX_DECLINED) {

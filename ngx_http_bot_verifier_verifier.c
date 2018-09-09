@@ -61,23 +61,24 @@ hostname_matches_provider_domain(ngx_http_request_t *r, char *hostname, ngx_http
 ngx_int_t
 ngx_http_bot_verifier_module_verify_bot(ngx_http_request_t *r, ngx_http_bot_verifier_module_loc_conf_t *loc_conf)
 {
-  char dervied_address[INET_ADDRSTRLEN];
-  ngx_int_t error = ngx_http_bot_verifier_module_determine_address(r, dervied_address);
+  ngx_str_t derived_address;
+  ngx_int_t error = ngx_http_bot_verifier_module_determine_address(r, &derived_address);
   if (error == NGX_ERROR || error == NGX_DECLINED) {
     return NGX_ERROR;
   }
 
-  ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Using %s as connected address", &dervied_address);
+  ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Using %V as connected address", &derived_address);
 
   struct sockaddr_in sa;
   sa.sin_family = AF_INET;
-  inet_pton(AF_INET, dervied_address, &(sa.sin_addr));
+  inet_pton(AF_INET, (const char *)derived_address.data, &(sa.sin_addr));
   char hostname[NI_MAXHOST];
 
-  error = getnameinfo((struct sockaddr *) &sa, sizeof(sa), hostname, sizeof(hostname), NULL, 0, 0);
+  error = getnameinfo((struct sockaddr *) &sa, sizeof(sa), hostname, sizeof(hostname), NULL, 0, NI_NAMEREQD);
+  ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "result %d", error);
   if (error != 0) {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "getnameinfo() error: %s", gai_strerror(error));
-    return NGX_ERROR;
+    return NGX_DECLINED;
   }
 
   ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Lookup hostname %s", &hostname);
@@ -99,9 +100,9 @@ ngx_http_bot_verifier_module_verify_bot(ngx_http_request_t *r, ngx_http_bot_veri
   char *forward_result = inet_ntoa(forward->sin_addr);
 
   ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Forward Result %s", forward_result);
-  ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Derived Address %s", dervied_address);
+  ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Derived Address %s", derived_address.data);
 
-  if (strcmp(dervied_address, forward_result) == 0) {
+  if (strcmp((const char *)derived_address.data, forward_result) == 0) {
     freeaddrinfo(result);
     return NGX_OK;
   } else {

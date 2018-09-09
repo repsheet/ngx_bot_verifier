@@ -48,19 +48,16 @@ ngx_http_bot_verifier_module_handler(ngx_http_request_t *r)
     }
   }
 
-  char *address;
-  address = malloc(sizeof(INET_ADDRSTRLEN));
-  ngx_int_t address_status = ngx_http_bot_verifier_module_determine_address(r, address);
+  ngx_str_t address;
+  ngx_int_t address_status = ngx_http_bot_verifier_module_determine_address(r, &address);
   if (address_status == NGX_ERROR) {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Unable to determine connected address, bypassing");
-    free(address);
     return NGX_DECLINED;
   }
 
-  ngx_int_t verification_status = lookup_verification_status(loc_conf->redis.connection, address);
+  ngx_int_t verification_status = lookup_verification_status(loc_conf->redis.connection, &address);
   if (verification_status == NGX_ERROR) {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Unable to lookup verification status, bypassing");
-    free(address);
     return NGX_DECLINED;
   }
 
@@ -68,19 +65,16 @@ ngx_http_bot_verifier_module_handler(ngx_http_request_t *r)
 
   if (verification_status == SUCCESS) {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Actor has already been verified, bypassing");
-    free(address);
     return NGX_DECLINED;
   }
 
   if (verification_status == FAILURE) {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Actor previously failed verification, blocking request");
-    free(address);
     return NGX_HTTP_FORBIDDEN;
   }
 
   if (verification_status == ERROR) {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "There was an error looking up the actor, failing open");
-    free(address);
     return NGX_DECLINED;
   }
 
@@ -95,18 +89,16 @@ ngx_http_bot_verifier_module_handler(ngx_http_request_t *r)
     ret = ngx_http_bot_verifier_module_verify_bot(r, loc_conf);
     if (ret == NGX_OK) {
       ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Verification successful");
-      persist_verification_status(loc_conf->redis.connection, address, ret, loc_conf->redis.expiry);
+      persist_verification_status(loc_conf->redis.connection, &address, ret, loc_conf->redis.expiry);
     } else if (ret == NGX_DECLINED) {
       ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Verification failed");
-      persist_verification_status(loc_conf->redis.connection, address, ret, loc_conf->redis.expiry);
-      free(address);
+      persist_verification_status(loc_conf->redis.connection, &address, ret, loc_conf->redis.expiry);
       return NGX_HTTP_FORBIDDEN;
     }
   } else {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Bot does not identify");
   }
 
-  free(address);
   return NGX_OK;
 }
 
