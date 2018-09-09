@@ -53,12 +53,14 @@ ngx_http_bot_verifier_module_handler(ngx_http_request_t *r)
   ngx_int_t address_status = ngx_http_bot_verifier_module_determine_address(r, address);
   if (address_status == NGX_ERROR) {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Unable to determine connected address, bypassing");
+    free(address);
     return NGX_DECLINED;
   }
 
   ngx_int_t verification_status = lookup_verification_status(loc_conf->redis.connection, address);
   if (verification_status == NGX_ERROR) {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Unable to lookup verification status, bypassing");
+    free(address);
     return NGX_DECLINED;
   }
 
@@ -66,16 +68,19 @@ ngx_http_bot_verifier_module_handler(ngx_http_request_t *r)
 
   if (verification_status == SUCCESS) {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Actor has already been verified, bypassing");
+    free(address);
     return NGX_DECLINED;
   }
 
   if (verification_status == FAILURE) {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Actor previously failed verification, blocking request");
+    free(address);
     return NGX_HTTP_FORBIDDEN;
   }
 
   if (verification_status == ERROR) {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "There was an error looking up the actor, failing open");
+    free(address);
     return NGX_DECLINED;
   }
 
@@ -94,12 +99,14 @@ ngx_http_bot_verifier_module_handler(ngx_http_request_t *r)
     } else if (ret == NGX_DECLINED) {
       ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Verification failed");
       persist_verification_status(loc_conf->redis.connection, address, ret, loc_conf->redis.expiry);
+      free(address);
       return NGX_HTTP_FORBIDDEN;
     }
   } else {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Bot does not identify");
   }
 
+  free(address);
   return NGX_OK;
 }
 
@@ -206,8 +213,7 @@ ngx_http_bot_verifier_module_create_loc_conf(ngx_conf_t *cf)
   provider_t *yahoo = make_provider("Yahoo", yahoo_domains, len);
 
   conf->provider_len = 3;
-  // TODO: use nginx allocation
-  conf->providers = malloc(sizeof(provider_t**) + conf->provider_len * sizeof(provider_t*));
+  conf->providers = ngx_pcalloc(cf->pool, sizeof(provider_t**) + conf->provider_len * sizeof(provider_t*));
   conf->providers[0] = google;
   conf->providers[1] = yahoo;
   conf->providers[2] = bing;
