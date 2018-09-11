@@ -10,22 +10,9 @@
 ngx_int_t
 hostname_matches_provider_domain(ngx_http_request_t *r, char *hostname, ngx_http_bot_verifier_module_loc_conf_t *loc_conf)
 {
-  ngx_regex_t *re;
-  ngx_regex_compile_t rc;
-  u_char errstr[NGX_MAX_CONF_ERRSTR];
-  ngx_str_t pattern = ngx_string("[^.]*\\.[^.]{2,3}(?:\\.[^.]{2,3})?$");
-  ngx_memzero(&rc, sizeof(ngx_regex_compile_t));
-  rc.pattern = pattern;
-  rc.pool = r->pool;
-  rc.err.len = NGX_MAX_CONF_ERRSTR;
-  rc.err.data = errstr;
+  ngx_regex_t *re = loc_conf->domain_regex->regex;
+  ngx_regex_compile_t rc = *loc_conf->domain_regex;
 
-  if (ngx_regex_compile(&rc) != NGX_OK) {
-    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Regex error: %V", &rc.err);
-    return NGX_ERROR;
-  }
-
-  re = rc.regex;
   ngx_int_t n;
   int captures[(1 + rc.captures) * 3];
   ngx_str_t ngx_hostname;
@@ -67,8 +54,6 @@ ngx_http_bot_verifier_module_verify_bot(ngx_http_request_t *r, ngx_http_bot_veri
     return NGX_ERROR;
   }
 
-  ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Using %V as connected address", &derived_address);
-
   struct sockaddr_in sa;
   sa.sin_family = AF_INET;
   inet_pton(AF_INET, (const char *)derived_address.data, &(sa.sin_addr));
@@ -81,11 +66,9 @@ ngx_http_bot_verifier_module_verify_bot(ngx_http_request_t *r, ngx_http_bot_veri
     return NGX_DECLINED;
   }
 
-  ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Lookup hostname %s", &hostname);
   ngx_int_t match_result = hostname_matches_provider_domain(r, (char *)hostname, loc_conf);
 
   if (match_result == NGX_DECLINED) {
-    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Match result %d", match_result);
     return match_result;
   }
 

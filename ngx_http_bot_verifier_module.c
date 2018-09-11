@@ -10,6 +10,7 @@
 #include "ngx_http_bot_verifier_identifier.h"
 #include "ngx_http_bot_verifier_verifier.h"
 #include "ngx_http_bot_verifier_provider.h"
+#include "ngx_http_bot_verifier_regex.h"
 
 ngx_module_t ngx_http_bot_verifier_module;
 
@@ -82,7 +83,7 @@ ngx_http_bot_verifier_module_handler(ngx_http_request_t *r)
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Actor has not been verified, initiating verification process");
   }
 
-  ngx_int_t ret = ngx_http_bot_verifier_module_identifies_as_known_bot(r);
+  ngx_int_t ret = ngx_http_bot_verifier_module_identifies_as_known_bot(r, loc_conf);
 
   if (ret == NGX_OK) {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Bot identity detected");
@@ -209,6 +210,12 @@ ngx_http_bot_verifier_module_create_loc_conf(ngx_conf_t *cf)
   conf->providers[0] = google;
   conf->providers[1] = yahoo;
   conf->providers[2] = bing;
+
+  ngx_str_t identifier_pattern = ngx_string("google|bing|yahoo");
+  conf->identifier_regex = make_regex(cf->pool, &identifier_pattern);
+
+  ngx_str_t domain_pattern = ngx_string("[^.]*\\.[^.]{2,3}(?:\\.[^.]{2,3})?$");
+  conf->domain_regex = make_regex(cf->pool, &domain_pattern);
 
   return conf;
 }

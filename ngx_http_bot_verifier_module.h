@@ -6,7 +6,9 @@
 #define FAILURE 3
 #define ERROR 2
 
+#include <ngx_core.h>
 #include <hiredis/hiredis.h>
+
 #include "ngx_http_bot_verifier_provider.h"
 
 typedef struct {
@@ -23,6 +25,8 @@ typedef struct {
   redis_t redis;
   size_t provider_len;
   provider_t **providers;
+  ngx_regex_compile_t *identifier_regex;
+  ngx_regex_compile_t *domain_regex;
 } ngx_http_bot_verifier_module_loc_conf_t;
 
 #endif

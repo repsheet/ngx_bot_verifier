@@ -20,15 +20,14 @@ remote_address(u_char *connected_address, u_char *xff_header, ngx_str_t *address
 
     length = p - xff_header;
     u_char test_address[length + 1];
+    memset(test_address, '\0', length + 1);
     memcpy(test_address, xff_header, length);
-    test_address[length] = '\0';
-
     unsigned char buf[sizeof(struct in_addr)];
 
     if (inet_pton(AF_INET, (const char *)test_address, buf) == 1) {
-      address->data = malloc(sizeof(u_char *) * length + 1);
-      ngx_memcpy(address->data, test_address, length + 1);
       address->len = length + 1;
+      address->data = malloc(sizeof(u_char *) * address->len);
+      ngx_memcpy(address->data, test_address, address->len);
       return NGX_OK;
     } else {
       return NGX_ERROR;
