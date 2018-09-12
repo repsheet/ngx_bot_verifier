@@ -26,7 +26,7 @@ This module is alpha quality. It is not production ready.
 
 ## Version
 
-This document describes version [0.0.3](https://github.com/abedra/ngx_bot_verifier/tags) released on 9/9/2018.
+This document describes version [0.0.4](https://github.com/abedra/ngx_bot_verifier/tags) released on 9/9/2018.
 
 [Back to TOC](#table-of-contents)
 
