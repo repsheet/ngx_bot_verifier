@@ -46,27 +46,20 @@ hostname_matches_provider_domain(ngx_http_request_t *r, char *hostname, ngx_http
 }
 
 ngx_int_t
-ngx_http_bot_verifier_module_verify_bot(ngx_http_request_t *r, ngx_http_bot_verifier_module_loc_conf_t *loc_conf)
+ngx_http_bot_verifier_module_verify_bot(ngx_http_request_t *r, ngx_http_bot_verifier_module_loc_conf_t *loc_conf, char *address)
 {
-  ngx_str_t derived_address;
-  ngx_int_t error = ngx_http_bot_verifier_module_determine_address(r, &derived_address);
-  if (error == NGX_ERROR || error == NGX_DECLINED) {
-    return NGX_ERROR;
-  }
-
   struct sockaddr_in sa;
   sa.sin_family = AF_INET;
-  inet_pton(AF_INET, (const char *)derived_address.data, &(sa.sin_addr));
+  inet_pton(AF_INET, (const char *)address, &(sa.sin_addr));
   char hostname[NI_MAXHOST];
 
-  error = getnameinfo((struct sockaddr *) &sa, sizeof(sa), hostname, sizeof(hostname), NULL, 0, NI_NAMEREQD);
-  ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "result %d", error);
+  int error = getnameinfo((struct sockaddr *) &sa, sizeof(sa), hostname, sizeof(hostname), NULL, 0, NI_NAMEREQD);
   if (error != 0) {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "getnameinfo() error: %s", gai_strerror(error));
     return NGX_DECLINED;
   }
 
-  ngx_int_t match_result = hostname_matches_provider_domain(r, (char *)hostname, loc_conf);
+  ngx_int_t match_result = hostname_matches_provider_domain(r, hostname, loc_conf);
 
   if (match_result == NGX_DECLINED) {
     return match_result;
@@ -83,9 +76,9 @@ ngx_http_bot_verifier_module_verify_bot(ngx_http_request_t *r, ngx_http_bot_veri
   char *forward_result = inet_ntoa(forward->sin_addr);
 
   ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Forward Result %s", forward_result);
-  ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Derived Address %s", derived_address.data);
+  ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Actor Address %s", address);
 
-  if (strcmp((const char *)derived_address.data, forward_result) == 0) {
+  if (strcmp((const char *)address, forward_result) == 0) {
     freeaddrinfo(result);
     return NGX_OK;
   } else {

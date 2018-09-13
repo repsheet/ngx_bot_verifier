@@ -24,11 +24,9 @@ ngx_http_bot_verifier_module_identifies_as_known_bot(ngx_http_request_t *r, ngx_
   n = ngx_regex_exec(re, &user_agent, captures, (1 + rc.captures) * 3);
 
   if (n >= 0) {
-    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Search engine bot identified for %V", &user_agent);
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "User Agent identified as provider %V", &user_agent);
     return NGX_OK;
   }
-
-  ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "User Agent %V not identified", &user_agent);
 
   return NGX_DECLINED;
 }

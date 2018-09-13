@@ -29,7 +29,7 @@ ngx_http_bot_verifier_module_handler(ngx_http_request_t *r)
 
   ngx_int_t connection_status = check_connection(loc_conf->redis.connection);
   if (connection_status == NGX_ERROR) {
-    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "No cache connection found, creating a new connection");
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "No cache connection, creating new connection");
 
     if (loc_conf->redis.connection != NULL) {
       ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Cache connection error: %s", loc_conf->redis.connection->errstr);
@@ -38,7 +38,7 @@ ngx_http_bot_verifier_module_handler(ngx_http_request_t *r)
     connection_status = reset_connection(loc_conf);
 
     if (connection_status == NGX_ERROR) {
-      ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Unable to establish a connection to cache, bypassing");
+      ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Unable to establish cache connection, bypassing");
 
       if (loc_conf->redis.connection != NULL) {
         ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Cache connection error: %s", loc_conf->redis.connection->errstr);
@@ -49,55 +49,48 @@ ngx_http_bot_verifier_module_handler(ngx_http_request_t *r)
     }
   }
 
-  ngx_str_t address;
-  ngx_int_t address_status = ngx_http_bot_verifier_module_determine_address(r, &address);
+  char address[INET_ADDRSTRLEN];
+  memset(address, '\0', INET_ADDRSTRLEN);
+  ngx_int_t address_status = ngx_http_bot_verifier_module_determine_address(r, address);
+
   if (address_status == NGX_ERROR) {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Unable to determine connected address, bypassing");
     return NGX_DECLINED;
   }
 
-  ngx_int_t verification_status = lookup_verification_status(loc_conf->redis.connection, &address);
+  ngx_int_t verification_status = lookup_verification_status(loc_conf->redis.connection, address);
   if (verification_status == NGX_ERROR) {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Unable to lookup verification status, bypassing");
     return NGX_DECLINED;
   }
 
-  ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Lookup result %d", verification_status);
-
   if (verification_status == SUCCESS) {
-    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Actor has already been verified, bypassing");
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Cache returned valid actor, bypassing verification and allowing request");
     return NGX_DECLINED;
   }
 
   if (verification_status == FAILURE) {
-    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Actor previously failed verification, blocking request");
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Cache returned invalid actor, bypassing verification and blocking request");
     return NGX_HTTP_FORBIDDEN;
   }
 
   if (verification_status == ERROR) {
-    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "There was an error looking up the actor, failing open");
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Cache error");
     return NGX_DECLINED;
-  }
-
-  if (verification_status == NOT_FOUND) {
-    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Actor has not been verified, initiating verification process");
   }
 
   ngx_int_t ret = ngx_http_bot_verifier_module_identifies_as_known_bot(r, loc_conf);
 
   if (ret == NGX_OK) {
-    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Bot identity detected");
-    ret = ngx_http_bot_verifier_module_verify_bot(r, loc_conf);
+    ret = ngx_http_bot_verifier_module_verify_bot(r, loc_conf, address);
     if (ret == NGX_OK) {
-      ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Verification successful");
-      persist_verification_status(loc_conf->redis.connection, &address, ret, loc_conf->redis.expiry);
+      ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Verification successful, allowing request");
+      persist_verification_status(loc_conf->redis.connection, address, ret, loc_conf->redis.expiry);
     } else if (ret == NGX_DECLINED) {
-      ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Verification failed");
-      persist_verification_status(loc_conf->redis.connection, &address, ret, loc_conf->redis.expiry);
+      ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Verification failed, blocking request");
+      persist_verification_status(loc_conf->redis.connection, address, ret, loc_conf->redis.expiry);
       return NGX_HTTP_FORBIDDEN;
     }
-  } else {
-    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Bot does not identify");
   }
 
   return NGX_OK;

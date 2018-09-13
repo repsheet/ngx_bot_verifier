@@ -1,9 +1,9 @@
 #include <ngx_http.h>
 
 ngx_int_t
-remote_address(u_char *connected_address, u_char *xff_header, ngx_str_t *address)
+remote_address(ngx_http_request_t *r, u_char *xff_header, char *address)
 {
-  if ((connected_address == NULL && xff_header == NULL) || address == NULL) {
+  if ((r == NULL && xff_header == NULL) || address == NULL) {
     return NGX_DECLINED;
   }
 
@@ -25,22 +25,19 @@ remote_address(u_char *connected_address, u_char *xff_header, ngx_str_t *address
     unsigned char buf[sizeof(struct in_addr)];
 
     if (inet_pton(AF_INET, (const char *)test_address, buf) == 1) {
-      address->len = length + 1;
-      address->data = malloc(sizeof(u_char *) * address->len);
-      ngx_memcpy(address->data, test_address, address->len);
+      memcpy(address, test_address, length);
       return NGX_OK;
     } else {
       return NGX_ERROR;
     }
   } else {
-    address->data = connected_address;
-    address->len = strlen((const char *)connected_address);
+    memcpy(address, r->connection->addr_text.data, r->connection->addr_text.len);
     return NGX_OK;
   }
 }
 
 ngx_int_t
-ngx_http_bot_verifier_module_determine_address(ngx_http_request_t *r, ngx_str_t *address)
+ngx_http_bot_verifier_module_determine_address(ngx_http_request_t *r, char *address)
 {
   ngx_int_t result;
   ngx_table_elt_t *xff = NULL;
@@ -51,19 +48,17 @@ ngx_http_bot_verifier_module_determine_address(ngx_http_request_t *r, ngx_str_t 
   }
 
   if (xff == NULL) {
-    address->data = r->connection->addr_text.data;
-    address->len = r->connection->addr_text.len;
-
+    memcpy(address, r->connection->addr_text.data, r->connection->addr_text.len);
     return NGX_OK;
   } else {
-    result = remote_address(r->connection->addr_text.data, xff->value.data, address);
+    result = remote_address(r, xff->value.data, address);
     if (result == NGX_OK) {
       return NGX_OK;
     } else if (result == NGX_DECLINED) {
-      ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Not enough information to determine connecting IP address");
+      ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Cannot determine IP address");
       return NGX_ERROR;
     } else {
-      ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "The address supplied is not a valid IP address");
+      ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "IP address is not valid");
       return NGX_ERROR;
     }
   }

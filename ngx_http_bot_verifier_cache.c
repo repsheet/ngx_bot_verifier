@@ -63,11 +63,11 @@ reset_connection(ngx_http_bot_verifier_module_loc_conf_t *loc_conf)
 }
 
 ngx_int_t
-lookup_verification_status(redisContext *context, ngx_str_t *address)
+lookup_verification_status(redisContext *context, char *address)
 {
   redisReply *reply;
 
-  reply = redisCommand(context, "GET %s:bvs", (char *)address->data);
+  reply = redisCommand(context, "GET %s:bvs", address);
   if (reply) {
     if (reply->type == REDIS_REPLY_STRING) {
       if (strncmp("failure", reply->str, strlen("failure")) == 0) {
@@ -93,14 +93,14 @@ lookup_verification_status(redisContext *context, ngx_str_t *address)
 }
 
 ngx_int_t
-persist_verification_status(redisContext *context, ngx_str_t *address, ngx_int_t status, ngx_int_t expiry)
+persist_verification_status(redisContext *context, char *address, ngx_int_t status, ngx_int_t expiry)
 {
   redisReply *reply = NULL;
 
   if (status == NGX_OK) {
-    reply = redisCommand(context, "SETEX %s:bvs %d %s", (char *)address->data, expiry, "success");
+    reply = redisCommand(context, "SETEX %s:bvs %d %s", address, expiry, "success");
   } else if (status == NGX_DECLINED) {
-    reply = redisCommand(context, "SETEX %s:bvs %d %s", (char *)address->data, expiry, "failure");
+    reply = redisCommand(context, "SETEX %s:bvs %d %s", address, expiry, "failure");
   }
 
   if (reply) {
