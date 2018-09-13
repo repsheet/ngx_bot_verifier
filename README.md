@@ -20,7 +20,7 @@
 
 ## Status
 
-This module is alpha quality. It is not production ready.
+[BETA] This module has been tested on a handful of production websites. It has not yet been evaluated at scale. If you would like to consider testing this at scale I would be happy to assist and allocate time to correct any issues.
 
 [Back to TOC](#table-of-contents)
 
