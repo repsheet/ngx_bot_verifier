@@ -28,4 +28,4 @@ addons:
       description: "An NGINX module for validating search engine provider bots"
     notification_email: aaron@aaronbedra.com
     build_command: "make bootstrap"
-    branch_pattern: master
+    branch_pattern: coverity_scan
