@@ -198,16 +198,22 @@ ngx_http_bot_verifier_module_create_loc_conf(ngx_conf_t *cf)
   len = sizeof(yahoo_domains) / sizeof(yahoo_domains[0]);
   provider_t *yahoo = make_provider("Yahoo", yahoo_domains, len);
 
-  conf->provider_len = 3;
+  char *baidu_domains[1] = {"crawl.baidu.com"};
+  len = sizeof(baidu_domains) / sizeof(baidu_domains[0]);
+  provider_t *baidu = make_provider("Baidu", baidu_domains, len);
+
+  conf->provider_len = 4;
   conf->providers = ngx_pcalloc(cf->pool, sizeof(provider_t**) + conf->provider_len * sizeof(provider_t*));
   conf->providers[0] = google;
   conf->providers[1] = yahoo;
   conf->providers[2] = bing;
+  conf->providers[3] = baidu;
 
-  ngx_str_t identifier_pattern = ngx_string("google|bing|yahoo");
+  ngx_str_t identifier_pattern = ngx_string("google|bing|yahoo|baidu");
   conf->identifier_regex = make_regex(cf->pool, &identifier_pattern);
 
-  ngx_str_t domain_pattern = ngx_string("[^.]*\\.[^.]{2,3}(?:\\.[^.]{2,3})?$");
+  // ngx_str_t domain_pattern = ngx_string("[^.]*\\.[^.]{2,3}(?:\\.[^.]{2,3})?$");
+  ngx_str_t domain_pattern = ngx_string("\\.(.*)");
   conf->domain_regex = make_regex(cf->pool, &domain_pattern);
 
   return conf;
