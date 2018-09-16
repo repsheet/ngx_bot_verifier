@@ -202,14 +202,19 @@ ngx_http_bot_verifier_module_create_loc_conf(ngx_conf_t *cf)
   len = sizeof(baidu_domains) / sizeof(baidu_domains[0]);
   provider_t *baidu = make_provider("Baidu", baidu_domains, len);
 
-  conf->provider_len = 4;
+  char *yandex_domains[3] = {"yandex.com", "yandex.net", "yandex.ru"};
+  len = sizeof(yandex_domains) / sizeof(yandex_domains[0]);
+  provider_t *yandex = make_provider("Yandex", yandex_domains, len);
+
+  conf->provider_len = 5;
   conf->providers = ngx_pcalloc(cf->pool, sizeof(provider_t**) + conf->provider_len * sizeof(provider_t*));
   conf->providers[0] = google;
   conf->providers[1] = yahoo;
   conf->providers[2] = bing;
   conf->providers[3] = baidu;
+  conf->providers[4] = yandex;
 
-  ngx_str_t identifier_pattern = ngx_string("google|bing|yahoo|baidu");
+  ngx_str_t identifier_pattern = ngx_string("google|bing|yahoo|baidu|yandex");
   conf->identifier_regex = make_regex(cf->pool, &identifier_pattern);
 
   // ngx_str_t domain_pattern = ngx_string("[^.]*\\.[^.]{2,3}(?:\\.[^.]{2,3})?$");
