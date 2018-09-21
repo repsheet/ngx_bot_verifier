@@ -1,4 +1,4 @@
-# NGINX Search Index Bot Verification Module [![Build Status](https://secure.travis-ci.org/abedra/ngx_bot_verifier.png)](http://travis-ci.org/abedra/ngx_bot_verifier?branch=master) [![Coverity Build Status](https://scan.coverity.com/projects/16736/badge.svg)]
+# NGINX Search Index Bot Verification Module [![Build Status](https://secure.travis-ci.org/abedra/ngx_bot_verifier.png)](http://travis-ci.org/abedra/ngx_bot_verifier?branch=master) ![Coverity Build Status](https://scan.coverity.com/projects/16736/badge.svg)
 
 ## Table of Contents
 
