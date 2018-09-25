@@ -217,8 +217,8 @@ ngx_http_bot_verifier_module_create_loc_conf(ngx_conf_t *cf)
   ngx_str_t identifier_pattern = ngx_string("google|bing|yahoo|baidu|yandex");
   conf->identifier_regex = make_regex(cf->pool, &identifier_pattern);
 
-  // ngx_str_t domain_pattern = ngx_string("[^.]*\\.[^.]{2,3}(?:\\.[^.]{2,3})?$");
-  ngx_str_t domain_pattern = ngx_string("\\.(.*)");
+  ngx_str_t domain_pattern = ngx_string("[^.]*\\.[^.]{2,3}(?:\\.[^.]{2,3})?$");
+  // ngx_str_t domain_pattern = ngx_string("\\.(.*)");
   conf->domain_regex = make_regex(cf->pool, &domain_pattern);
 
   return conf;

@@ -123,7 +123,7 @@ bot_verifier_redis_read_timeout
 
 **syntax:** *bot_verifier_redis_read_timeout* &lt;int&gt;
 
-**default:** *5*
+**default:** *10*
 
 **context:** *location*
 
