@@ -164,24 +164,3 @@ User-Agent: Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/sear
 \r
 "
 --- error_code: 200
-
-=== TEST 9: yandex agent provided, identified, valid (200)
---- config
-location = /t {
-  bot_verifier on;
-  bot_verifier_redis_host localhost;
-  bot_verifier_redis_port 6379;
-  bot_verifier_redis_connection_timeout 10;
-  bot_verifier_redis_read_timeout 10;
-  bot_verifier_redis_expiry 3600;
-  echo 'test';
-}
---- raw_request eval
-"GET /t HTTP/1.1\r
-Host: 127.0.0.1\r
-Connection: close\r
-X-Forwarded-For: 100.43.90.5\r
-User-Agent: Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)\r
-\r
-"
---- error_code: 200
