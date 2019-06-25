@@ -8,7 +8,7 @@ provider_t *make_provider(char *name, char *valid_domains[], size_t len) {
   provider->len = len;
 
   int i;
-  for (i = 0; i < provider->len; i++) {
+  for (i = 0; i < (int)provider->len; i++) {
     provider->valid_domains[i] = valid_domains[i];
   }
 

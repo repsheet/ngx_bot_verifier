@@ -230,11 +230,11 @@ ngx_http_bot_verifier_module_merge_loc_conf(ngx_conf_t *cf, void *parent, void *
   ngx_http_bot_verifier_module_loc_conf_t *prev = (ngx_http_bot_verifier_module_loc_conf_t *) parent;
   ngx_http_bot_verifier_module_loc_conf_t *conf = (ngx_http_bot_verifier_module_loc_conf_t *) child;
 
-  ngx_conf_merge_value(conf->enabled,                  prev->enabled,                  0);
-  ngx_conf_merge_value(conf->redis.port,               prev->redis.port,               6379);
-  ngx_conf_merge_value(conf->redis.connection_timeout, prev->redis.connection_timeout, 10);
-  ngx_conf_merge_value(conf->redis.read_timeout,       prev->redis.read_timeout,       10);
-  ngx_conf_merge_value(conf->redis.expiry,             prev->redis.expiry,             3600);
+  ngx_conf_merge_value(conf->enabled,                       prev->enabled,                  0);
+  ngx_conf_merge_uint_value(conf->redis.port,               prev->redis.port,               6379);
+  ngx_conf_merge_uint_value(conf->redis.connection_timeout, prev->redis.connection_timeout, 10);
+  ngx_conf_merge_uint_value(conf->redis.read_timeout,       prev->redis.read_timeout,       10);
+  ngx_conf_merge_uint_value(conf->redis.expiry,             prev->redis.expiry,             3600);
 
   return NGX_CONF_OK;
 }

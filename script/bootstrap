@@ -3,11 +3,12 @@
 set -o nounset
 set -o errexit
 
-NGINX_VERSION=1.14.0
+NGINX_VERSION=1.16.0
 
 DIR=$(pwd)
 BUILDDIR=$DIR/build
 NGINX_DIR=nginx
+DEBUG_FLAGS="-g -O0 -Wall -Werror -static-libasan -fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null"
 
 setup_local_directories () {
     if [ ! -d $BUILDDIR ]; then
@@ -36,13 +37,13 @@ install_nginx () {
         curl -s -L -O "http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz"
         tar xzf "nginx-$NGINX_VERSION.tar.gz"
         pushd "nginx-$NGINX_VERSION" > /dev/null 2>&1
-	CFLAGS="-g -O0 -Wall -Werror" ./configure         \
-            --with-debug                                  \
-            --prefix=$(pwd)/../../build/nginx             \
-            --conf-path=conf/nginx.conf                   \
-            --error-log-path=logs/error.log               \
-            --http-log-path=logs/access.log               \
-	    --add-module=../echo-nginx-module             \
+	./configure                            \
+            --with-debug                       \
+            --prefix=$(pwd)/../../build/nginx  \
+            --conf-path=conf/nginx.conf        \
+            --error-log-path=logs/error.log    \
+            --http-log-path=logs/access.log    \
+	    --add-module=../echo-nginx-module  \
             --add-module=../..
         make
         make install
@@ -57,13 +58,15 @@ install_nginx () {
 compile () {
     pushd "vendor" > /dev/null 2>&1
     pushd "nginx-$NGINX_VERSION" > /dev/null 2>&1
-    CFLAGS="-g -O0 -Wall -Werror" ./configure        \
-        --with-debug                                 \
-        --prefix=$(pwd)/../../build/nginx            \
-        --conf-path=conf/nginx.conf                  \
-        --error-log-path=logs/error.log              \
-        --http-log-path=logs/access.log              \
-	--add-module=../echo-nginx-module            \
+    ./configure                             \
+        --with-debug                        \
+	--with-threads                      \
+	--with-ld-opt="-lasan -lubsan -ldl" \
+	--prefix=$(pwd)/../../build/nginx   \
+        --conf-path=conf/nginx.conf         \
+        --error-log-path=logs/error.log     \
+        --http-log-path=logs/access.log     \
+	--add-module=../echo-nginx-module   \
         --add-module=../..
     make
     make install

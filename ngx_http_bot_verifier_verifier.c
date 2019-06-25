@@ -28,9 +28,9 @@ hostname_matches_provider_domain(ngx_http_request_t *r, char *hostname, ngx_http
       capture.data = ngx_hostname.data + captures[i];
       capture.len = captures[i + 1] - captures[i];
       ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Capture: %V", &capture);
-      for (j = 0; j < loc_conf->provider_len; j++) {
+      for (j = 0; j < (int)loc_conf->provider_len; j++) {
 	// TODO: This could be optimized capturing the name of the provider that matched and only iteration through that providers valid domains.
-	for (k = 0; k < loc_conf->providers[j]->len; k++) {
+	for (k = 0; k < (int)loc_conf->providers[j]->len; k++) {
 	  ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Comparing %s against: %s", capture.data, loc_conf->providers[j]->valid_domains[k]);
 	  if (ngx_strncmp(capture.data, loc_conf->providers[j]->valid_domains[k], strlen(loc_conf->providers[j]->valid_domains[k])) == 0) {
 	    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Found match for %V with %V", &ngx_hostname, &capture);
