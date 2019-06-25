@@ -8,7 +8,7 @@
 #include "ngx_http_bot_verifier_cache.h"
 
 ngx_int_t
-check_connection(redisContext *context) {
+ngx_http_bot_verifier_module_check_connection(redisContext *context) {
   if (context == NULL || context->err) {
     return NGX_ERROR;
   }
@@ -29,7 +29,7 @@ check_connection(redisContext *context) {
 }
 
 void
-cleanup_connection(ngx_http_bot_verifier_module_loc_conf_t *loc_conf)
+ngx_http_bot_verifier_module_cleanup_connection(ngx_http_bot_verifier_module_loc_conf_t *loc_conf)
 {
   if (loc_conf->redis.connection != NULL) {
     redisFree(loc_conf->redis.connection);
@@ -38,9 +38,9 @@ cleanup_connection(ngx_http_bot_verifier_module_loc_conf_t *loc_conf)
 }
 
 ngx_int_t
-reset_connection(ngx_http_bot_verifier_module_loc_conf_t *loc_conf)
+ngx_http_bot_verifier_module_reset_connection(ngx_http_bot_verifier_module_loc_conf_t *loc_conf)
 {
-  cleanup_connection(loc_conf);
+  ngx_http_bot_verifier_module_cleanup_connection(loc_conf);
   const char *host = (const char *)loc_conf->redis.host.data;
   int port = loc_conf->redis.port;
   int connection_timeout = loc_conf->redis.connection_timeout;
@@ -63,7 +63,7 @@ reset_connection(ngx_http_bot_verifier_module_loc_conf_t *loc_conf)
 }
 
 ngx_int_t
-lookup_verification_status(redisContext *context, char *address)
+ngx_http_bot_verifier_module_lookup_verification_status(redisContext *context, char *address)
 {
   redisReply *reply;
 
@@ -93,7 +93,7 @@ lookup_verification_status(redisContext *context, char *address)
 }
 
 ngx_int_t
-persist_verification_status(ngx_http_bot_verifier_module_loc_conf_t *loc_conf, char *address, ngx_int_t status)
+ngx_http_bot_verifier_module_persist_verification_status(ngx_http_bot_verifier_module_loc_conf_t *loc_conf, char *address, ngx_int_t status)
 {
   redisReply *reply = NULL;
 

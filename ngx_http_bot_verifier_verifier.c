@@ -8,7 +8,7 @@
 #include "ngx_http_bot_verifier_provider.h"
 
 ngx_int_t
-hostname_matches_provider_domain(ngx_http_request_t *r, char *hostname, ngx_http_bot_verifier_module_loc_conf_t *loc_conf)
+ngx_http_bot_verifier_module_hostname_matches_provider_domain(ngx_http_request_t *r, char *hostname, ngx_http_bot_verifier_module_loc_conf_t *loc_conf)
 {
   ngx_regex_t *re = loc_conf->domain_regex->regex;
   ngx_regex_compile_t rc = *loc_conf->domain_regex;
@@ -59,7 +59,7 @@ ngx_http_bot_verifier_module_verify_bot(ngx_http_request_t *r, ngx_http_bot_veri
     return NGX_DECLINED;
   }
 
-  ngx_int_t match_result = hostname_matches_provider_domain(r, hostname, loc_conf);
+  ngx_int_t match_result = ngx_http_bot_verifier_module_hostname_matches_provider_domain(r, hostname, loc_conf);
 
   if (match_result == NGX_DECLINED) {
     return match_result;

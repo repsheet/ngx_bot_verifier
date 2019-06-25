@@ -18,14 +18,14 @@ typedef struct {
   ngx_uint_t read_timeout;
   ngx_uint_t expiry;
   redisContext *connection;
-} redis_t;
+} ngx_http_bot_verifier_module_redis_t;
 
 typedef struct {
   ngx_flag_t enabled;
   ngx_flag_t repsheet_enabled;
-  redis_t redis;
+  ngx_http_bot_verifier_module_redis_t redis;
   size_t provider_len;
-  provider_t **providers;
+  ngx_http_bot_verifier_module_provider_t **providers;
   ngx_regex_compile_t *identifier_regex;
   ngx_regex_compile_t *domain_regex;
 } ngx_http_bot_verifier_module_loc_conf_t;

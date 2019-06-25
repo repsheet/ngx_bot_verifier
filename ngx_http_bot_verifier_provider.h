@@ -7,8 +7,8 @@ typedef struct {
   size_t len;
   const char *name;
   const char *valid_domains[];
-} provider_t;
+} ngx_http_bot_verifier_module_provider_t;
 
-provider_t *make_provider(char *name, char *valid_domains[], size_t len);
+ngx_http_bot_verifier_module_provider_t *ngx_http_bot_verifier_module_make_provider(char *name, char *valid_domains[], size_t len);
 
 #endif

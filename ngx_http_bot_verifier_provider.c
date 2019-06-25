@@ -2,8 +2,8 @@
 
 #include "ngx_http_bot_verifier_provider.h"
 
-provider_t *make_provider(char *name, char *valid_domains[], size_t len) {
-  provider_t *provider = (provider_t*) malloc(sizeof(provider_t) + sizeof(char*) * len);
+ngx_http_bot_verifier_module_provider_t *ngx_http_bot_verifier_module_make_provider(char *name, char *valid_domains[], size_t len) {
+  ngx_http_bot_verifier_module_provider_t *provider = (ngx_http_bot_verifier_module_provider_t*) malloc(sizeof(ngx_http_bot_verifier_module_provider_t) + sizeof(char*) * len);
   provider->name = name;
   provider->len = len;
 

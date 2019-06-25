@@ -1,7 +1,7 @@
 #include "ngx_http_bot_verifier_module.h"
 #include "ngx_http_bot_verifier_regex.h"
 
-ngx_regex_compile_t *make_regex(ngx_pool_t *pool, ngx_str_t *pattern) {
+ngx_regex_compile_t *ngx_http_bot_verifier_module_make_regex(ngx_pool_t *pool, ngx_str_t *pattern) {
   ngx_regex_compile_t *rc = ngx_pcalloc(pool, sizeof(ngx_regex_compile_t));
   u_char errstr[NGX_MAX_CONF_ERRSTR];
 

@@ -27,7 +27,7 @@ ngx_http_bot_verifier_module_handler(ngx_http_request_t *r)
     return NGX_DECLINED;
   }
 
-  ngx_int_t connection_status = check_connection(loc_conf->redis.connection);
+  ngx_int_t connection_status = ngx_http_bot_verifier_module_check_connection(loc_conf->redis.connection);
   if (connection_status == NGX_ERROR) {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "No cache connection, creating new connection");
 
@@ -35,14 +35,14 @@ ngx_http_bot_verifier_module_handler(ngx_http_request_t *r)
       ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Cache connection error: %s", loc_conf->redis.connection->errstr);
     }
 
-    connection_status = reset_connection(loc_conf);
+    connection_status = ngx_http_bot_verifier_module_reset_connection(loc_conf);
 
     if (connection_status == NGX_ERROR) {
       ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Unable to establish cache connection, bypassing");
 
       if (loc_conf->redis.connection != NULL) {
         ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Cache connection error: %s", loc_conf->redis.connection->errstr);
-        cleanup_connection(loc_conf);
+        ngx_http_bot_verifier_module_cleanup_connection(loc_conf);
       }
 
       return NGX_DECLINED;
@@ -58,7 +58,7 @@ ngx_http_bot_verifier_module_handler(ngx_http_request_t *r)
     return NGX_DECLINED;
   }
 
-  ngx_int_t verification_status = lookup_verification_status(loc_conf->redis.connection, address);
+  ngx_int_t verification_status = ngx_http_bot_verifier_module_lookup_verification_status(loc_conf->redis.connection, address);
   if (verification_status == NGX_ERROR) {
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Unable to lookup verification status, bypassing");
     return NGX_DECLINED;
@@ -85,10 +85,10 @@ ngx_http_bot_verifier_module_handler(ngx_http_request_t *r)
     ret = ngx_http_bot_verifier_module_verify_bot(r, loc_conf, address);
     if (ret == NGX_OK) {
       ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Verification successful, allowing request");
-      persist_verification_status(loc_conf, address, ret);
+      ngx_http_bot_verifier_module_persist_verification_status(loc_conf, address, ret);
     } else if (ret == NGX_DECLINED) {
       ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "Verification failed, blocking request");
-      persist_verification_status(loc_conf, address, ret);
+      ngx_http_bot_verifier_module_persist_verification_status(loc_conf, address, ret);
       return NGX_HTTP_FORBIDDEN;
     }
   }
@@ -197,26 +197,26 @@ ngx_http_bot_verifier_module_create_loc_conf(ngx_conf_t *cf)
 
   char *google_domains[2] = {"google.com", "googlebot.com"};
   len = sizeof(google_domains) / sizeof(google_domains[0]);
-  provider_t *google = make_provider("Google", google_domains, len);
+  ngx_http_bot_verifier_module_provider_t *google = ngx_http_bot_verifier_module_make_provider("Google", google_domains, len);
 
   char *bing_domains[1] = {"search.msn.com"};
   len = sizeof(bing_domains) / sizeof(bing_domains[0]);
-  provider_t *bing = make_provider("Bing", bing_domains, len);
+  ngx_http_bot_verifier_module_provider_t *bing = ngx_http_bot_verifier_module_make_provider("Bing", bing_domains, len);
 
   char *yahoo_domains[1] = {"yahoo.com"};
   len = sizeof(yahoo_domains) / sizeof(yahoo_domains[0]);
-  provider_t *yahoo = make_provider("Yahoo", yahoo_domains, len);
+  ngx_http_bot_verifier_module_provider_t *yahoo = ngx_http_bot_verifier_module_make_provider("Yahoo", yahoo_domains, len);
 
   char *baidu_domains[1] = {"crawl.baidu.com"};
   len = sizeof(baidu_domains) / sizeof(baidu_domains[0]);
-  provider_t *baidu = make_provider("Baidu", baidu_domains, len);
+  ngx_http_bot_verifier_module_provider_t *baidu = ngx_http_bot_verifier_module_make_provider("Baidu", baidu_domains, len);
 
   char *yandex_domains[3] = {"yandex.com", "yandex.net", "yandex.ru"};
   len = sizeof(yandex_domains) / sizeof(yandex_domains[0]);
-  provider_t *yandex = make_provider("Yandex", yandex_domains, len);
+  ngx_http_bot_verifier_module_provider_t *yandex = ngx_http_bot_verifier_module_make_provider("Yandex", yandex_domains, len);
 
   conf->provider_len = 5;
-  conf->providers = ngx_pcalloc(cf->pool, sizeof(provider_t**) + conf->provider_len * sizeof(provider_t*));
+  conf->providers = ngx_pcalloc(cf->pool, sizeof(ngx_http_bot_verifier_module_provider_t**) + conf->provider_len * sizeof(ngx_http_bot_verifier_module_provider_t*));
   conf->providers[0] = google;
   conf->providers[1] = yahoo;
   conf->providers[2] = bing;
@@ -224,11 +224,11 @@ ngx_http_bot_verifier_module_create_loc_conf(ngx_conf_t *cf)
   conf->providers[4] = yandex;
 
   ngx_str_t identifier_pattern = ngx_string("google|bing|yahoo|baidu|yandex");
-  conf->identifier_regex = make_regex(cf->pool, &identifier_pattern);
+  conf->identifier_regex = ngx_http_bot_verifier_module_make_regex(cf->pool, &identifier_pattern);
 
   ngx_str_t domain_pattern = ngx_string("[^.]*\\.[^.]{2,3}(?:\\.[^.]{2,3})?$");
   // ngx_str_t domain_pattern = ngx_string("\\.(.*)");
-  conf->domain_regex = make_regex(cf->pool, &domain_pattern);
+  conf->domain_regex = ngx_http_bot_verifier_module_make_regex(cf->pool, &domain_pattern);
 
   return conf;
 }

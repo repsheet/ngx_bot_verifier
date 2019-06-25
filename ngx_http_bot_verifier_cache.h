@@ -1,10 +1,10 @@
 #ifndef __NGX_HTTP_BOT_VERIFIER_CACHE_H__
 #define __NGX_HTTP_BOT_VERIFIER_CACHE_H__
 
-ngx_int_t check_connection(redisContext *context);
-void cleanup_connection(ngx_http_bot_verifier_module_loc_conf_t *loc_conf);
-ngx_int_t reset_connection(ngx_http_bot_verifier_module_loc_conf_t *loc_conf);
-ngx_int_t lookup_verification_status(redisContext *context, char *address);
-ngx_int_t persist_verification_status(ngx_http_bot_verifier_module_loc_conf_t *loc_conf, char *address, ngx_int_t status);
+ngx_int_t ngx_http_bot_verifier_module_check_connection(redisContext *context);
+void ngx_http_bot_verifier_module_cleanup_connection(ngx_http_bot_verifier_module_loc_conf_t *loc_conf);
+ngx_int_t ngx_http_bot_verifier_module_reset_connection(ngx_http_bot_verifier_module_loc_conf_t *loc_conf);
+ngx_int_t ngx_http_bot_verifier_module_lookup_verification_status(redisContext *context, char *address);
+ngx_int_t ngx_http_bot_verifier_module_persist_verification_status(ngx_http_bot_verifier_module_loc_conf_t *loc_conf, char *address, ngx_int_t status);
 
 #endif
