@@ -1,7 +1,7 @@
 #include <ngx_http.h>
 
 ngx_int_t
-remote_address(ngx_http_request_t *r, u_char *xff_header, char *address)
+ngx_http_bot_verifier_module_remote_address(ngx_http_request_t *r, u_char *xff_header, char *address)
 {
   if ((r == NULL && xff_header == NULL) || address == NULL) {
     return NGX_DECLINED;
@@ -51,7 +51,7 @@ ngx_http_bot_verifier_module_determine_address(ngx_http_request_t *r, char *addr
     memcpy(address, r->connection->addr_text.data, r->connection->addr_text.len);
     return NGX_OK;
   } else {
-    result = remote_address(r, xff->value.data, address);
+    result = ngx_http_bot_verifier_module_remote_address(r, xff->value.data, address);
     if (result == NGX_OK) {
       return NGX_OK;
     } else if (result == NGX_DECLINED) {
