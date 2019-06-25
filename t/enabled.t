@@ -96,7 +96,7 @@ location = /t {
 "GET /t HTTP/1.1\r
 Host: 127.0.0.1\r
 Connection: close\r
-X-Forwarded-For: 65.52.104.9\r
+X-Forwarded-For: 157.55.39.5\r
 User-Agent: Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)\r
 \r
 "

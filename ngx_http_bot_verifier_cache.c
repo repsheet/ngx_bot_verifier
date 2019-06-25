@@ -93,14 +93,17 @@ lookup_verification_status(redisContext *context, char *address)
 }
 
 ngx_int_t
-persist_verification_status(redisContext *context, char *address, ngx_int_t status, ngx_int_t expiry)
+persist_verification_status(ngx_http_bot_verifier_module_loc_conf_t *loc_conf, char *address, ngx_int_t status)
 {
   redisReply *reply = NULL;
 
   if (status == NGX_OK) {
-    reply = redisCommand(context, "SETEX %s:bvs %d %s", address, expiry, "success");
+    reply = redisCommand(loc_conf->redis.connection, "SETEX %s:bvs %d %s", address, loc_conf->redis.expiry, "success");
   } else if (status == NGX_DECLINED) {
-    reply = redisCommand(context, "SETEX %s:bvs %d %s", address, expiry, "failure");
+    reply = redisCommand(loc_conf->redis.connection, "SETEX %s:bvs %d %s", address, loc_conf->redis.expiry, "failure");
+    if (loc_conf->repsheet_enabled) {
+      reply = redisCommand(loc_conf->redis.connection, "REPSHEET.BLACKLIST %s %d %s", address, loc_conf->redis.expiry, "http.bot.provider_validation");
+    }
   }
 
   if (reply) {

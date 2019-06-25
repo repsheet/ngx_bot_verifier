@@ -22,6 +22,7 @@ typedef struct {
 
 typedef struct {
   ngx_flag_t enabled;
+  ngx_flag_t repsheet_enabled;
   redis_t redis;
   size_t provider_len;
   provider_t **providers;

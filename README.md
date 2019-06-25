@@ -13,6 +13,7 @@
   * [bot_verifier_redis_connection_timeout](#bot_verifier_redis_connection_timeout)
   * [bot_verifier_redis_read_timeout](#bot_verifier_redis_read_timeout)
   * [bot_verifier_redis_expiry](#bot_verifier_redis_expiry)
+  * [bot_verifier_repsheet_enabled](#bot_verifier_repsheet_enabled)
 * [Installation](#installation)
 * [Verifying Functionality](#verifying-functionality)
 * [Developer Setup](#developer-setup)
@@ -40,6 +41,7 @@ location / {
     bot_verifier_redis_connection_timeout 10;
     bot_verifier_redis_read_timeout 10;
     bot_verifier_redis_expiry 3600;
+	bot_verifier_repsheet_enabled on;
 }
 ```
 
@@ -145,6 +147,21 @@ bot_verifier_redis_expiry
 **phase:** *access*
 
 Sets the timeout when querying Redis. This setting is used to connect to the Redis database used for caching lookup results.
+
+[Back to TOC](#table-of-contents)
+
+bot_verifier_repsheet_enabled
+-------------------------
+
+**syntax:** *bot_verifier_repsheet_enabled* \[on|off\]
+
+**default:** *off*
+
+**context:** *location*
+
+**phase:** *access*
+
+Enables blacklisting of failed actors in Repsheet. Assumes Repsheet cache lives on already configured redis server.
 
 [Back to TOC](#table-of-contents)
 
