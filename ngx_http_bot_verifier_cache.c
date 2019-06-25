@@ -102,7 +102,7 @@ ngx_http_bot_verifier_module_persist_verification_status(ngx_http_bot_verifier_m
   } else if (status == NGX_DECLINED) {
     reply = redisCommand(loc_conf->redis.connection, "SETEX %s:bvs %d %s", address, loc_conf->redis.expiry, "failure");
     if (loc_conf->repsheet_enabled) {
-      reply = redisCommand(loc_conf->redis.connection, "REPSHEET.BLACKLIST %s %d %s", address, loc_conf->redis.expiry, "http.bot.provider_validation");
+      reply = redisCommand(loc_conf->redis.connection, "REPSHEET.BLACKLIST %s %s %d", address, "http.bot.provider_validation", loc_conf->redis.expiry);
     }
   }
 
