@@ -197,23 +197,23 @@ ngx_http_bot_verifier_module_create_loc_conf(ngx_conf_t *cf)
 
   char *google_domains[2] = {"google.com", "googlebot.com"};
   len = sizeof(google_domains) / sizeof(google_domains[0]);
-  ngx_http_bot_verifier_module_provider_t *google = ngx_http_bot_verifier_module_make_provider("Google", google_domains, len);
+  ngx_http_bot_verifier_module_provider_t *google = ngx_http_bot_verifier_module_make_provider(cf->pool, "Google", google_domains, len);
 
   char *bing_domains[1] = {"search.msn.com"};
   len = sizeof(bing_domains) / sizeof(bing_domains[0]);
-  ngx_http_bot_verifier_module_provider_t *bing = ngx_http_bot_verifier_module_make_provider("Bing", bing_domains, len);
+  ngx_http_bot_verifier_module_provider_t *bing = ngx_http_bot_verifier_module_make_provider(cf->pool, "Bing", bing_domains, len);
 
   char *yahoo_domains[1] = {"yahoo.com"};
   len = sizeof(yahoo_domains) / sizeof(yahoo_domains[0]);
-  ngx_http_bot_verifier_module_provider_t *yahoo = ngx_http_bot_verifier_module_make_provider("Yahoo", yahoo_domains, len);
+  ngx_http_bot_verifier_module_provider_t *yahoo = ngx_http_bot_verifier_module_make_provider(cf->pool, "Yahoo", yahoo_domains, len);
 
   char *baidu_domains[1] = {"crawl.baidu.com"};
   len = sizeof(baidu_domains) / sizeof(baidu_domains[0]);
-  ngx_http_bot_verifier_module_provider_t *baidu = ngx_http_bot_verifier_module_make_provider("Baidu", baidu_domains, len);
+  ngx_http_bot_verifier_module_provider_t *baidu = ngx_http_bot_verifier_module_make_provider(cf->pool, "Baidu", baidu_domains, len);
 
   char *yandex_domains[3] = {"yandex.com", "yandex.net", "yandex.ru"};
   len = sizeof(yandex_domains) / sizeof(yandex_domains[0]);
-  ngx_http_bot_verifier_module_provider_t *yandex = ngx_http_bot_verifier_module_make_provider("Yandex", yandex_domains, len);
+  ngx_http_bot_verifier_module_provider_t *yandex = ngx_http_bot_verifier_module_make_provider(cf->pool, "Yandex", yandex_domains, len);
 
   conf->provider_len = 5;
   conf->providers = ngx_pcalloc(cf->pool, sizeof(ngx_http_bot_verifier_module_provider_t**) + conf->provider_len * sizeof(ngx_http_bot_verifier_module_provider_t*));
