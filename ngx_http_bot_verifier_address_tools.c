@@ -41,11 +41,15 @@ ngx_http_bot_verifier_module_determine_address(ngx_http_request_t *r, char *addr
 {
   ngx_int_t result;
   ngx_table_elt_t *xff = NULL;
+#if defined(nginx_version) && nginx_version >= 1023000
+  xff = r->headers_in.x_forwarded_for;
+#else
   ngx_array_t *ngx_array = &r->headers_in.x_forwarded_for;
   if (ngx_array != NULL && ngx_array->nelts > 0) {
     ngx_table_elt_t **first_elt = ngx_array->elts;
     xff = first_elt[0];
   }
+#endif
 
   if (xff == NULL) {
     memcpy(address, r->connection->addr_text.data, r->connection->addr_text.len);
